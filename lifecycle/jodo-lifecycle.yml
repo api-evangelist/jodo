@@ -1,0 +1,99 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/getting-started/api-structure/
+versioning:
+  scheme: URI path
+  current_version: v1
+  pattern: /api/v1/integrations/...
+  header_versioning: false
+  date_versioning: false
+  docs: https://docs.jodo.in/getting-started/api-structure/
+deprecation_policy:
+  published: true
+  docs: https://docs.jodo.in/getting-started/api-structure/
+  title: API Update Guidelines
+  summary: >-
+    Jodo publishes an explicit backward-compatibility contract, stating which changes it avoids and
+    which it will introduce, and commits to a deprecation schedule when a breaking change is
+    unavoidable.
+  changes_avoided:
+  - Removing or renaming request or response content fields
+  - Removing or renaming query string parameters
+  - Removing or changing the location of a resource
+  - Changing the API domain
+  changes_introduced:
+  - Adding new resources
+  - Adding new, optional request content fields
+  - Adding new, optional query string parameters
+  - Adding new response content fields
+  - Adding new response header information
+  breaking_change_commitment: >-
+    "If, for any reason, we cannot avoid any of the non-backward compatible changes mentioned above,
+    we will implement a deprecation schedule. This schedule will be provided to all customers with
+    the goal of giving them adequate time to accommodate the updates."
+  notice_period: not_stated
+  beta_carve_out: >-
+    "Undocumented resources and properties are considered to be in beta release and are subject to
+    change without notification."
+  peer_review: >-
+    Jodo states every new or improved feature goes through a peer review process checking that it
+    does not break current customer implementations and is consistent with existing resources.
+  rfc8594_sunset_headers: false
+  rfc8594_note: >-
+    No Sunset or Deprecation response header is documented, and the API returns no version or
+    deprecation signalling at runtime. The policy is prose on a docs page; an agent cannot detect a
+    pending deprecation from a response.
+  delivery_channel: >-
+    "provided to all customers" — the channel is not named. There is no public deprecation feed,
+    changelog or mailing list an integrator can subscribe to.
+deprecated_operations:
+  count: 0
+  note: No operation in the published reference is marked deprecated.
+status_page:
+  published: true
+  url: https://status.jodo.in/
+  platform: Atlassian Statuspage
+  http_status: 200
+  components:
+  - Collect App
+  - Customer Portal
+  - Dashboard
+  - Integration APIs
+  - Communication
+  - WhatsApp Communication
+  - Email Communication
+  - SMS Communication
+  - Call Communication
+  uptime_window: 90 days
+  observed_2026_08_23: All nine components Operational, uptime 99.9%–100% over the trailing 90 days.
+  subscriptions: [Slack, Microsoft Teams, RSS/Atom, email]
+  note: >-
+    "Integration APIs" is tracked as a first-class component alongside the end-user apps, which means
+    the API surface profiled here has its own published availability history.
+sla:
+  published: false
+  note: >-
+    No public SLA, uptime commitment, support-response target or credit regime is published. The
+    status page reports historical uptime but makes no forward commitment.
+changelog:
+  published: false
+  note: >-
+    Jodo publishes no dated API changelog or release-notes page. The docs site carries no "what's new"
+    section, and the marketing blog (https://www.jodo.in/blog/) mixes product announcements
+    (e.g. "Jodo launches UPI Autopay", 2024-07-22) with engineering and insight posts — it is not a
+    change log for the API. An integrator has no way to learn that an endpoint changed.
+retirement:
+  published: false
+support:
+  channel: https://www.jodo.in/contact-us/
+  grievance_redressal: https://www.jodo.in/grievance-redressal/
+  note: >-
+    As a regulated Indian lending intermediary Jodo publishes a grievance redressal page naming
+    escalation contacts — a compliance surface, not a developer support channel. No developer support
+    email, forum, Slack or ticketing system is published in the docs.
+gaps:
+- No API changelog or release notes.
+- No Sunset/Deprecation runtime headers (RFC 8594).
+- No stated notice period on the deprecation schedule.
+- No public SLA.
+- No developer-specific support channel.

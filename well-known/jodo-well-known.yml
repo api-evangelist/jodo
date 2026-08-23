@@ -1,0 +1,355 @@
+generated: '2026-08-23'
+method: probed
+source: live probes of /.well-known/* on every Jodo host
+summary: No Jodo-owned /.well-known document is served on any Jodo host. Every path on every host either 404s, returns
+  the site's HTML shell with HTTP 200, or — in one case — serves a THIRD PARTY's document from a vendor-hosted subdomain.
+  dashboard.jodo.in and app.jodo.in are single-page apps whose catch-all route answers 200 with the same HTML document
+  for EVERY /.well-known/* path probed, including agent-card.json; that is the classic false-positive shape for
+  this probe and is recorded as a miss. status.jodo.in serves a real security.txt, but it is ATLASSIAN'S, not Jodo's
+  (see ownership note below). No WellKnown, SecurityTxt, APICatalog or AgentCard pointer is emitted in apis.yml
+  as a result.
+documents_served: 0
+notable:
+- No Jodo-owned /.well-known/security.txt (RFC 9116) on any host — no machine-readable vulnerability reporting address
+  for a company handling school fee payments and consumer lending. The only security.txt reachable under a jodo.in
+  name is Atlassian's, served by the status-page vendor.
+- No /.well-known/openid-configuration or /oauth-authorization-server, consistent with the API being HTTP Basic
+  Auth only.
+- No /.well-known/api-catalog (RFC 9727).
+- No A2A agent card at either /.well-known/agent-card.json or the legacy /.well-known/agent.json.
+hosts:
+- host: www.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: docs.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: ext.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: api.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: dashboard.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+- host: app.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/openid-configuration
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/api-catalog
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    result: html-shell
+    note: HTTP 200 returning the site's SPA/HTML shell, not a document. Treated as a miss.
+- host: compliance.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+- host: status.jodo.in
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: well-known/jodo-status-vendor-security.txt
+    result: vendor-document
+    owner: Atlassian (status-page vendor), not Jodo
+    note: Valid RFC 9116 document but Canonical/Contact/Policy all resolve to atlassian.com. Served by the Statuspage
+      platform on Jodo's branded subdomain. NOT counted as a Jodo hit and NOT wired to a pointer.
+  - path: /.well-known/openid-configuration
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/api-catalog
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/ai-plugin.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent-card.json
+    status: 404
+    file: null
+    result: absent
+  - path: /.well-known/agent.json
+    status: 404
+    file: null
+    result: absent
+vendor_documents_served: 1
+ownership_note: 'OWNERSHIP: https://status.jodo.in/.well-known/security.txt returns HTTP 200 with a valid, PGP-signed
+  RFC 9116 document — but it belongs to Atlassian, not Jodo. status.jodo.in is a Jodo-branded Atlassian Statuspage,
+  and the vendor''s platform serves its own security.txt from every customer subdomain. The file says so plainly:
+  Canonical is https://www.atlassian.com/.well-known/security.txt, both Contact lines are Atlassian (security@atlassian.com
+  and atlassian.com/trust/security/report-a-vulnerability), the Policy and Encryption URLs are Atlassian''s, and
+  the Hiring line points at Atlassian security jobs. Nothing in it routes a report about the Jodo API to Jodo. Crediting
+  Jodo with a vulnerability disclosure programme on the strength of this file would attribute a vendor''s security
+  posture to its customer. Saved verbatim as jodo-status-vendor-security.txt for the record, deliberately NOT wired
+  to a SecurityTxt pointer.'

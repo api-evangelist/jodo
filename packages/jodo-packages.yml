@@ -1,0 +1,56 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/platforms/overview/
+official_package_count: 0
+packages: []
+summary: >-
+  Jodo publishes NO first-party client libraries. There is no Jodo SDK on npm, PyPI, Maven Central,
+  NuGet, RubyGems, Packagist, crates.io or pkg.go.dev, and the GitHub organisation github.com/jodohq
+  (HTTP 200, created 2021-01-31, name "Jodo", website www.jodo.in) has zero public repositories.
+  Integration is raw HTTP with Basic Auth; the documentation ships static curl, Python (requests),
+  PHP (HTTP_Request2) and NodeJS snippets rather than a library.
+registry_searches:
+- registry: npm
+  query: jodo
+  url: https://registry.npmjs.org/-/v1/search?text=jodo
+  status: 200
+  result: >-
+    No first-party package. The `jodo` name is taken by an unrelated "Minimalist in-process JSON File
+    Database"; other hits (jodo-packages, jodo-language-package, jodo-package, jodo-time-package) are
+    unrelated language/time utilities. None reference jodo.in.
+- registry: pypi
+  queries: [jodo, jodo-sdk, jodopay]
+  status: '200 (jodo, unrelated project), 404 (jodo-sdk), 404 (jodopay)'
+  result: No first-party package.
+- registry: github
+  url: https://api.github.com/orgs/jodohq
+  status: 200
+  result: 'Official Jodo organisation; public_repos: 0. No SDK, no sample app, no reference implementation.'
+- registry: github-org-alternates
+  queries: [jodo, jodo-in, jodopay, jodofinance]
+  status: 404
+  result: No other Jodo-owned organisation exists under those names.
+platform_guides:
+  note: >-
+    The "Platforms" section (React Native, Android, Web) is NOT an SDK. Each guide is a copy-paste
+    integration recipe for embedding Jodo's HOSTED checkout in a WebView or browser window, built
+    entirely on standard platform primitives — android.webkit.WebView, the community
+    react-native-webview package, and window.location.assign. Jodo publishes no wrapper of its own
+    around any of them.
+  third_party_dependencies:
+  - name: react-native-webview
+    registry: npm
+    official: false
+    first_party: false
+    note: >-
+      A community package Jodo's React Native guide instructs the integrator to install
+      (`npm install react-native-webview`). It is not published or maintained by Jodo and wraps no
+      Jodo API; recorded here only so the dependency is not mistaken for a Jodo SDK.
+  docs: https://docs.jodo.in/platforms/overview/
+distribution_note: >-
+  No CDN-distributed script tag, embed loader or drop-in JS bundle is published either — the hosted
+  flow is entered by navigating to a redirect_url minted server-side, not by loading a Jodo script.
+consumer_impact: >-
+  Every integrator writes and maintains their own HTTP client, retry logic, webhook signature
+  verification and payload models against a documentation site with no machine-readable contract. The
+  webhook signature check in particular is left to the integrator from a five-line Python example.

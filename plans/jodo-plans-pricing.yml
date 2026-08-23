@@ -1,0 +1,38 @@
+generated: '2026-08-23'
+method: searched
+source: https://www.jodo.in/
+plan_count: 0
+plans: []
+pricing_model: contact-sales
+public_pricing: false
+summary: >-
+  Jodo publishes no pricing of any kind — no plan tiers, no per-transaction rate, no MDR, no interest
+  rate on Cred, no platform fee, no API-usage pricing. The commercial motion is a demo request:
+  every conversion path on the marketing site leads to "Book a demo" or "Contact us". Pricing is
+  negotiated per institute.
+probes:
+- url: https://www.jodo.in/pricing
+  status: 404
+- url: https://www.jodo.in/
+  status: 200
+  finding: >-
+    Homepage carries "Book a demo" and login CTAs and partner logos; no pricing page is linked from
+    the navigation or footer.
+- url: https://docs.jodo.in/
+  status: 200
+  finding: >-
+    The developer documentation contains no pricing, no plan-gated feature matrix, and no statement
+    that any endpoint or product requires a particular commercial tier.
+commercial_notes:
+- >-
+  The API is not self-service. Jodo shares API keys and secrets per institute and per environment
+  out of band (https://docs.jodo.in/getting-started/authentication/), so an integrator cannot obtain
+  credentials — or discover a price — without a sales conversation.
+- >-
+  Cred is education lending originated with third-party NBFC partners (Avanse Financial Services,
+  LiquiLoans, Lendbox, Eduvanz, Vivriti Capital, Fibe/EarlySalary, Ratnaafin, per
+  https://www.jodo.in/lending-partners/). Loan pricing sits with those lenders, not Jodo, and the
+  page publishes a "DLG Disclosure" document rather than rates.
+- >-
+  A separate self-serve product for MSMEs ("Collect for MSMEs: UPI Autopay, eNACH & reminders") is
+  promoted in the docs banner, but it too publishes no pricing.

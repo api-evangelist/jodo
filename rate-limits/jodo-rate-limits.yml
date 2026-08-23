@@ -1,0 +1,64 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/getting-started/api-structure/
+docs:
+- https://docs.jodo.in/getting-started/api-structure/
+- https://docs.jodo.in/getting-started/authentication/
+limit_count: 0
+rate_limits: []
+acknowledged: true
+summary: >-
+  Jodo confirms in two separate places that its API is rate limited, but publishes no number. Neither
+  the "Rate Limits" section on the API Structure page nor the one on the Authentication page states a
+  limit, a window, a burst allowance, or the scope the limit applies to (per key, per institute, per
+  endpoint). No rate-limit response headers are documented. An integrator cannot size a batch, and an
+  agent cannot pace itself except by reacting to a 429 after the fact.
+documented_statements:
+- quote: >-
+    "Our API employs rate limiting to control the number of requests made by individual users or
+    applications within a specified time period. This ensures the smooth functioning of the API,
+    prevents misuse, and allows fair access to resources for all users."
+  source: https://docs.jodo.in/getting-started/authentication/
+- quote: >-
+    "Jodo APIs may apply rate limits to protect system stability. If you receive a rate-limit response,
+    retry with exponential backoff instead of retrying immediately."
+  source: https://docs.jodo.in/getting-started/api-structure/
+exhaustion:
+  status_code: 429
+  status_meaning: Too many requests.
+  documented: true
+  source: https://docs.jodo.in/getting-started/api-structure/
+  retry_after_header: not_documented
+  recommended_client_behavior: >-
+    "Implement exponential backoff by retrying the request after progressively increasing wait times."
+response_headers:
+  documented: false
+  checked:
+  - X-RateLimit-Limit
+  - X-RateLimit-Remaining
+  - X-RateLimit-Reset
+  - RateLimit-Limit
+  - RateLimit-Remaining
+  - RateLimit-Reset
+  - Retry-After
+  note: >-
+    None of these appear anywhere in the 85 documentation pages crawled on 2026-08-23. Live
+    observation is not possible: the API host ext.jodo.in returns {"message":"Not Found"} (AWS API
+    Gateway) on every unauthenticated path, so no rate-limit headers can be read without credentials.
+  probe:
+    url: https://ext.jodo.in/
+    status: 404
+    body: '{"message":"Not Found"}'
+    date: '2026-08-23'
+scope: not_documented
+plan_dependency: unknown
+note: >-
+  Interaction with the reliability contract: Jodo retries FAILED WEBHOOK deliveries up to 5 times over
+  3 days, but nothing documents whether a 429 from the integrator's endpoint counts as a failed
+  attempt, nor whether Jodo rate-limits its own outbound webhook delivery. Both directions are
+  unspecified.
+gaps:
+- No numeric limit or window published in either rate-limit section.
+- No rate-limit response headers documented — the runtime signal an agent needs is absent.
+- No Retry-After documented alongside the 429.
+- No statement of whether limits are per API key, per institute, per endpoint or global.

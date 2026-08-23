@@ -1,0 +1,1746 @@
+# generated: '2026-08-23'
+# method: generated
+# source: https://docs.jodo.in/ (per-event webhook reference pages, fetched 2026-08-23)
+asyncapi: 3.0.0
+id: urn:com:jodo:webhooks
+info:
+  title: Jodo Webhooks
+  version: '1.0'
+  description: 'Jodo delivers state changes for students, manual payments, Flex instalment plans, Pay collections and Cred
+    education loans as HTTP POST webhooks to a URL the institute registers per event_code.
+
+
+    PROVENANCE: Jodo publishes no AsyncAPI document. This description was assembled from Jodo''s own public webhook reference
+    at https://docs.jodo.in/ (one page per event, all HTTP 200 on 2026-08-23). Every event_code, envelope field, delivery
+    rule, retry policy, source IP and signature header below is transcribed from those pages. Nothing has been invented.
+
+
+    Delivery: Jodo treats a webhook as delivered on a 2xx response. Non-2xx responses, timeouts and unreachable endpoints
+    are failures and are retried up to 5 times, spaced across 6-hour and 24-hour intervals for up to 3 days. Continuous failure
+    disables the subscription (production: 100 consecutive failures; UAT: 10).
+
+
+    Security: Jodo supports three independent validation mechanisms, usable alone or combined — a custom header key/value
+    agreed with the institute, source IP allowlisting, and an HMAC SHA-256 signature over the raw request body sent in the
+    X-Jodo-Signature header using a shared secret_key.'
+  contact:
+    name: Jodo
+    url: https://docs.jodo.in/webhooks/handling-webhook-events/
+  externalDocs:
+    description: Jodo webhook integration guide
+    url: https://docs.jodo.in/webhooks/handling-webhook-events/
+defaultContentType: application/json
+servers:
+  subscriberEndpoint:
+    host: '{institute-endpoint}'
+    protocol: https
+    description: The institute/ERP HTTPS endpoint registered per event_code. Jodo sends from fixed source IPs — production
+      3.6.234.242, 3.111.80.40, 13.232.24.175, 43.204.202.190; UAT 3.108.86.33, 13.127.40.177, 65.0.77.215.
+channels:
+  MasterdataStudentRegisteredChannel:
+    address: '{subscriberWebhookUrl}'
+    title: masterdata.student.registered
+    summary: A student record has been registered in Jodo.
+    description: Jodo POSTs this event to the URL registered for event_code `masterdata.student.registered` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/student-registered/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      MasterdataStudentRegistered:
+        $ref: '#/components/messages/MasterdataStudentRegistered'
+    tags:
+    - name: Student
+  MasterdataStudentActivatedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: masterdata.student.activated
+    summary: A student record has been activated in Jodo.
+    description: Jodo POSTs this event to the URL registered for event_code `masterdata.student.activated` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/student-activated/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      MasterdataStudentActivated:
+        $ref: '#/components/messages/MasterdataStudentActivated'
+    tags:
+    - name: Student
+  MasterdataStudentDroppedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: masterdata.student.dropped
+    summary: A student has been marked as dropped out.
+    description: Jodo POSTs this event to the URL registered for event_code `masterdata.student.dropped` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/student-dropped/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      MasterdataStudentDropped:
+        $ref: '#/components/messages/MasterdataStudentDropped'
+    tags:
+    - name: Student
+  DirectPaymentAddedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: direct.payment.added
+    summary: A manual/direct payment has been recorded against a student.
+    description: Jodo POSTs this event to the URL registered for event_code `direct.payment.added` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-added/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      DirectPaymentAdded:
+        $ref: '#/components/messages/DirectPaymentAdded'
+    tags:
+    - name: Student
+  DirectPaymentUpdatedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: direct.payment.updated
+    summary: A previously recorded manual/direct payment has been updated.
+    description: Jodo POSTs this event to the URL registered for event_code `direct.payment.updated` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-updated/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      DirectPaymentUpdated:
+        $ref: '#/components/messages/DirectPaymentUpdated'
+    tags:
+    - name: Student
+  DirectPaymentCancelledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: direct.payment.cancelled
+    summary: A previously recorded manual/direct payment has been cancelled.
+    description: Jodo POSTs this event to the URL registered for event_code `direct.payment.cancelled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-cancelled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      DirectPaymentCancelled:
+        $ref: '#/components/messages/DirectPaymentCancelled'
+    tags:
+    - name: Student
+  FlexSubscriptionSetupChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.subscription.setup
+    summary: The payer has completed Flex setup and a subscription has been created.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.subscription.setup` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/subscription-setup/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexSubscriptionSetup:
+        $ref: '#/components/messages/FlexSubscriptionSetup'
+    tags:
+    - name: Flex
+  FlexSubscriptionActiveChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.subscription.active
+    summary: The bank has confirmed that debits can happen and the Flex subscription is active.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.subscription.active` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/subscription-active/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexSubscriptionActive:
+        $ref: '#/components/messages/FlexSubscriptionActive'
+    tags:
+    - name: Flex
+  FlexSubscriptionUpdatedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.subscription.updated
+    summary: An existing Flex subscription has been updated.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.subscription.updated` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/subscription-updated/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexSubscriptionUpdated:
+        $ref: '#/components/messages/FlexSubscriptionUpdated'
+    tags:
+    - name: Flex
+  FlexSubscriptionCancelledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.subscription.cancelled
+    summary: A Flex subscription has been cancelled.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.subscription.cancelled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/subscription-cancelled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexSubscriptionCancelled:
+        $ref: '#/components/messages/FlexSubscriptionCancelled'
+    tags:
+    - name: Flex
+  FlexSubscriptionClosedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.subscription.closed
+    summary: A Flex subscription has been closed.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.subscription.closed` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/subscription-closed/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexSubscriptionClosed:
+        $ref: '#/components/messages/FlexSubscriptionClosed'
+    tags:
+    - name: Flex
+  FlexMandateCancelledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.mandate.cancelled
+    summary: The auto-debit mandate backing a Flex subscription has been cancelled.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.mandate.cancelled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/mandate-cancelled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexMandateCancelled:
+        $ref: '#/components/messages/FlexMandateCancelled'
+    tags:
+    - name: Flex
+  FlexMandateExpiredChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.mandate.expired
+    summary: The auto-debit mandate backing a Flex subscription has expired.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.mandate.expired` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/mandate-expired/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexMandateExpired:
+        $ref: '#/components/messages/FlexMandateExpired'
+    tags:
+    - name: Flex
+  FlexInstalmentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.instalment.debited
+    summary: A scheduled Flex instalment has been debited from the payer.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.instalment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/instalment-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexInstalmentDebited:
+        $ref: '#/components/messages/FlexInstalmentDebited'
+    tags:
+    - name: Flex
+  FlexInstalmentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.instalment.settled
+    summary: A debited Flex instalment has been settled to the institute.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.instalment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/instalment-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexInstalmentSettled:
+        $ref: '#/components/messages/FlexInstalmentSettled'
+    tags:
+    - name: Flex
+  FlexInstalmentBouncedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.instalment.bounced
+    summary: A scheduled Flex instalment debit has bounced.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.instalment.bounced` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/instalment-bounced/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexInstalmentBounced:
+        $ref: '#/components/messages/FlexInstalmentBounced'
+    tags:
+    - name: Flex
+  FlexDownpaymentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.downpayment.debited
+    summary: The upfront downpayment collected during Flex setup has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.downpayment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/downpayment-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexDownpaymentDebited:
+        $ref: '#/components/messages/FlexDownpaymentDebited'
+    tags:
+    - name: Flex
+  FlexDownpaymentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: flex.downpayment.settled
+    summary: The Flex downpayment has been settled to the institute.
+    description: Jodo POSTs this event to the URL registered for event_code `flex.downpayment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/flex/webhooks/downpayment-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      FlexDownpaymentSettled:
+        $ref: '#/components/messages/FlexDownpaymentSettled'
+    tags:
+    - name: Flex
+  PayPaymentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: pay.payment.debited
+    summary: A student-linked Pay payment has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `pay.payment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/payment-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PayPaymentDebited:
+        $ref: '#/components/messages/PayPaymentDebited'
+    tags:
+    - name: Pay
+  PayPaymentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: pay.payment.settled
+    summary: A student-linked Pay payment has been settled to the institute.
+    description: Jodo POSTs this event to the URL registered for event_code `pay.payment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/payment-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PayPaymentSettled:
+        $ref: '#/components/messages/PayPaymentSettled'
+    tags:
+    - name: Pay
+  OrderPaymentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: order.payment.debited
+    summary: A checkout order payment has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `order.payment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/order-payment-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      OrderPaymentDebited:
+        $ref: '#/components/messages/OrderPaymentDebited'
+    tags:
+    - name: Pay
+  OrderPaymentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: order.payment.settled
+    summary: A checkout order payment has been settled to the institute.
+    description: Jodo POSTs this event to the URL registered for event_code `order.payment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/order-payment-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      OrderPaymentSettled:
+        $ref: '#/components/messages/OrderPaymentSettled'
+    tags:
+    - name: Pay
+  PagePaymentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: page.payment.debited
+    summary: A payment made through a Jodo hosted payment page has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `page.payment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/page-payment-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PagePaymentDebited:
+        $ref: '#/components/messages/PagePaymentDebited'
+    tags:
+    - name: Pay
+  PagePaymentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: page.payment.settled
+    summary: A payment made through a Jodo hosted payment page has been settled.
+    description: Jodo POSTs this event to the URL registered for event_code `page.payment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/page-payment-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PagePaymentSettled:
+        $ref: '#/components/messages/PagePaymentSettled'
+    tags:
+    - name: Pay
+  PaymentLinkPaymentDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: payment_link.payment.debited
+    summary: A payment made through a shareable payment link has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `payment_link.payment.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/payment-link-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PaymentLinkPaymentDebited:
+        $ref: '#/components/messages/PaymentLinkPaymentDebited'
+    tags:
+    - name: Pay
+  PaymentLinkPaymentSettledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: payment_link.payment.settled
+    summary: A payment made through a shareable payment link has been settled.
+    description: Jodo POSTs this event to the URL registered for event_code `payment_link.payment.settled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/payment-link-settled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PaymentLinkPaymentSettled:
+        $ref: '#/components/messages/PaymentLinkPaymentSettled'
+    tags:
+    - name: Pay
+  PaymentLinkPaymentExpiredChannel:
+    address: '{subscriberWebhookUrl}'
+    title: payment_link.payment.expired
+    summary: A shareable payment link has expired without being paid.
+    description: Jodo POSTs this event to the URL registered for event_code `payment_link.payment.expired` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/pay/webhooks/payment-link-expired/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      PaymentLinkPaymentExpired:
+        $ref: '#/components/messages/PaymentLinkPaymentExpired'
+    tags:
+    - name: Pay
+  CredLoanApplicationStartedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.application_started
+    summary: A student or parent has started an education loan application.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.application_started` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/application-started/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanApplicationStarted:
+        $ref: '#/components/messages/CredLoanApplicationStarted'
+    tags:
+    - name: Cred
+  CredLoanApplicationFilledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.application_filled
+    summary: An education loan application has been completed by the applicant.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.application_filled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/application-filled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanApplicationFilled:
+        $ref: '#/components/messages/CredLoanApplicationFilled'
+    tags:
+    - name: Cred
+  CredLoanAgreementSignedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.agreement_signed
+    summary: The loan agreement has been signed by the applicant.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.agreement_signed` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/agreement-signed/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanAgreementSigned:
+        $ref: '#/components/messages/CredLoanAgreementSigned'
+    tags:
+    - name: Cred
+  CredLoanFinalApprovedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.final_approved
+    summary: The education loan application has received final approval.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.final_approved` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/final-approved/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanFinalApproved:
+        $ref: '#/components/messages/CredLoanFinalApproved'
+    tags:
+    - name: Cred
+  CredLoanRejectedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.rejected
+    summary: The education loan application has been rejected.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.rejected` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/rejected/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanRejected:
+        $ref: '#/components/messages/CredLoanRejected'
+    tags:
+    - name: Cred
+  CredLoanCanceledChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.canceled
+    summary: The education loan application has been cancelled.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.canceled` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/canceled/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanCanceled:
+        $ref: '#/components/messages/CredLoanCanceled'
+    tags:
+    - name: Cred
+  CredLoanApplicationExpiredChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.application_expired
+    summary: The education loan application has expired.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.application_expired` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/application-expired/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanApplicationExpired:
+        $ref: '#/components/messages/CredLoanApplicationExpired'
+    tags:
+    - name: Cred
+  CredLoanDisbursedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.loan.disbursed
+    summary: The approved education loan has been disbursed.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.loan.disbursed` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/disbursed/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredLoanDisbursed:
+        $ref: '#/components/messages/CredLoanDisbursed'
+    tags:
+    - name: Cred
+  CredEmiDebitedChannel:
+    address: '{subscriberWebhookUrl}'
+    title: cred.emi.debited
+    summary: An EMI instalment on a disbursed education loan has been debited.
+    description: Jodo POSTs this event to the URL registered for event_code `cred.emi.debited` via POST /api/v1/integrations/erp/webhooks.
+      Documented at https://docs.jodo.in/cred/webhooks/emi-debited/
+    parameters:
+      subscriberWebhookUrl:
+        description: The HTTPS endpoint the institute/ERP registered for this event_code. One event_code maps to exactly one
+          URL.
+    messages:
+      CredEmiDebited:
+        $ref: '#/components/messages/CredEmiDebited'
+    tags:
+    - name: Cred
+operations:
+  receiveMasterdataStudentRegistered:
+    action: receive
+    channel:
+      $ref: '#/channels/MasterdataStudentRegisteredChannel'
+    summary: A student record has been registered in Jodo.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/MasterdataStudentRegisteredChannel/messages/MasterdataStudentRegistered'
+  receiveMasterdataStudentActivated:
+    action: receive
+    channel:
+      $ref: '#/channels/MasterdataStudentActivatedChannel'
+    summary: A student record has been activated in Jodo.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/MasterdataStudentActivatedChannel/messages/MasterdataStudentActivated'
+  receiveMasterdataStudentDropped:
+    action: receive
+    channel:
+      $ref: '#/channels/MasterdataStudentDroppedChannel'
+    summary: A student has been marked as dropped out.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/MasterdataStudentDroppedChannel/messages/MasterdataStudentDropped'
+  receiveDirectPaymentAdded:
+    action: receive
+    channel:
+      $ref: '#/channels/DirectPaymentAddedChannel'
+    summary: A manual/direct payment has been recorded against a student.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/DirectPaymentAddedChannel/messages/DirectPaymentAdded'
+  receiveDirectPaymentUpdated:
+    action: receive
+    channel:
+      $ref: '#/channels/DirectPaymentUpdatedChannel'
+    summary: A previously recorded manual/direct payment has been updated.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/DirectPaymentUpdatedChannel/messages/DirectPaymentUpdated'
+  receiveDirectPaymentCancelled:
+    action: receive
+    channel:
+      $ref: '#/channels/DirectPaymentCancelledChannel'
+    summary: A previously recorded manual/direct payment has been cancelled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/DirectPaymentCancelledChannel/messages/DirectPaymentCancelled'
+  receiveFlexSubscriptionSetup:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexSubscriptionSetupChannel'
+    summary: The payer has completed Flex setup and a subscription has been created.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexSubscriptionSetupChannel/messages/FlexSubscriptionSetup'
+  receiveFlexSubscriptionActive:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexSubscriptionActiveChannel'
+    summary: The bank has confirmed that debits can happen and the Flex subscription is active.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexSubscriptionActiveChannel/messages/FlexSubscriptionActive'
+  receiveFlexSubscriptionUpdated:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexSubscriptionUpdatedChannel'
+    summary: An existing Flex subscription has been updated.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexSubscriptionUpdatedChannel/messages/FlexSubscriptionUpdated'
+  receiveFlexSubscriptionCancelled:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexSubscriptionCancelledChannel'
+    summary: A Flex subscription has been cancelled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexSubscriptionCancelledChannel/messages/FlexSubscriptionCancelled'
+  receiveFlexSubscriptionClosed:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexSubscriptionClosedChannel'
+    summary: A Flex subscription has been closed.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexSubscriptionClosedChannel/messages/FlexSubscriptionClosed'
+  receiveFlexMandateCancelled:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexMandateCancelledChannel'
+    summary: The auto-debit mandate backing a Flex subscription has been cancelled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexMandateCancelledChannel/messages/FlexMandateCancelled'
+  receiveFlexMandateExpired:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexMandateExpiredChannel'
+    summary: The auto-debit mandate backing a Flex subscription has expired.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexMandateExpiredChannel/messages/FlexMandateExpired'
+  receiveFlexInstalmentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexInstalmentDebitedChannel'
+    summary: A scheduled Flex instalment has been debited from the payer.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexInstalmentDebitedChannel/messages/FlexInstalmentDebited'
+  receiveFlexInstalmentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexInstalmentSettledChannel'
+    summary: A debited Flex instalment has been settled to the institute.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexInstalmentSettledChannel/messages/FlexInstalmentSettled'
+  receiveFlexInstalmentBounced:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexInstalmentBouncedChannel'
+    summary: A scheduled Flex instalment debit has bounced.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexInstalmentBouncedChannel/messages/FlexInstalmentBounced'
+  receiveFlexDownpaymentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexDownpaymentDebitedChannel'
+    summary: The upfront downpayment collected during Flex setup has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexDownpaymentDebitedChannel/messages/FlexDownpaymentDebited'
+  receiveFlexDownpaymentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/FlexDownpaymentSettledChannel'
+    summary: The Flex downpayment has been settled to the institute.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/FlexDownpaymentSettledChannel/messages/FlexDownpaymentSettled'
+  receivePayPaymentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/PayPaymentDebitedChannel'
+    summary: A student-linked Pay payment has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PayPaymentDebitedChannel/messages/PayPaymentDebited'
+  receivePayPaymentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/PayPaymentSettledChannel'
+    summary: A student-linked Pay payment has been settled to the institute.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PayPaymentSettledChannel/messages/PayPaymentSettled'
+  receiveOrderPaymentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/OrderPaymentDebitedChannel'
+    summary: A checkout order payment has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/OrderPaymentDebitedChannel/messages/OrderPaymentDebited'
+  receiveOrderPaymentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/OrderPaymentSettledChannel'
+    summary: A checkout order payment has been settled to the institute.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/OrderPaymentSettledChannel/messages/OrderPaymentSettled'
+  receivePagePaymentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/PagePaymentDebitedChannel'
+    summary: A payment made through a Jodo hosted payment page has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PagePaymentDebitedChannel/messages/PagePaymentDebited'
+  receivePagePaymentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/PagePaymentSettledChannel'
+    summary: A payment made through a Jodo hosted payment page has been settled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PagePaymentSettledChannel/messages/PagePaymentSettled'
+  receivePaymentLinkPaymentDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/PaymentLinkPaymentDebitedChannel'
+    summary: A payment made through a shareable payment link has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PaymentLinkPaymentDebitedChannel/messages/PaymentLinkPaymentDebited'
+  receivePaymentLinkPaymentSettled:
+    action: receive
+    channel:
+      $ref: '#/channels/PaymentLinkPaymentSettledChannel'
+    summary: A payment made through a shareable payment link has been settled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PaymentLinkPaymentSettledChannel/messages/PaymentLinkPaymentSettled'
+  receivePaymentLinkPaymentExpired:
+    action: receive
+    channel:
+      $ref: '#/channels/PaymentLinkPaymentExpiredChannel'
+    summary: A shareable payment link has expired without being paid.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/PaymentLinkPaymentExpiredChannel/messages/PaymentLinkPaymentExpired'
+  receiveCredLoanApplicationStarted:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanApplicationStartedChannel'
+    summary: A student or parent has started an education loan application.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanApplicationStartedChannel/messages/CredLoanApplicationStarted'
+  receiveCredLoanApplicationFilled:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanApplicationFilledChannel'
+    summary: An education loan application has been completed by the applicant.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanApplicationFilledChannel/messages/CredLoanApplicationFilled'
+  receiveCredLoanAgreementSigned:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanAgreementSignedChannel'
+    summary: The loan agreement has been signed by the applicant.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanAgreementSignedChannel/messages/CredLoanAgreementSigned'
+  receiveCredLoanFinalApproved:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanFinalApprovedChannel'
+    summary: The education loan application has received final approval.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanFinalApprovedChannel/messages/CredLoanFinalApproved'
+  receiveCredLoanRejected:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanRejectedChannel'
+    summary: The education loan application has been rejected.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanRejectedChannel/messages/CredLoanRejected'
+  receiveCredLoanCanceled:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanCanceledChannel'
+    summary: The education loan application has been cancelled.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanCanceledChannel/messages/CredLoanCanceled'
+  receiveCredLoanApplicationExpired:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanApplicationExpiredChannel'
+    summary: The education loan application has expired.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanApplicationExpiredChannel/messages/CredLoanApplicationExpired'
+  receiveCredLoanDisbursed:
+    action: receive
+    channel:
+      $ref: '#/channels/CredLoanDisbursedChannel'
+    summary: The approved education loan has been disbursed.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredLoanDisbursedChannel/messages/CredLoanDisbursed'
+  receiveCredEmiDebited:
+    action: receive
+    channel:
+      $ref: '#/channels/CredEmiDebitedChannel'
+    summary: An EMI instalment on a disbursed education loan has been debited.
+    description: Return a 2xx response once the event is accepted. Jodo retries up to 5 times across 6-hour and 24-hour intervals
+      for up to 3 days; handlers must be idempotent on event_id.
+    messages:
+    - $ref: '#/channels/CredEmiDebitedChannel/messages/CredEmiDebited'
+components:
+  messages:
+    MasterdataStudentRegistered:
+      name: masterdata.student.registered
+      title: masterdata.student.registered
+      summary: A student record has been registered in Jodo.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/student-registered/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: masterdata.student.registered
+    MasterdataStudentActivated:
+      name: masterdata.student.activated
+      title: masterdata.student.activated
+      summary: A student record has been activated in Jodo.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/student-activated/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: masterdata.student.activated
+    MasterdataStudentDropped:
+      name: masterdata.student.dropped
+      title: masterdata.student.dropped
+      summary: A student has been marked as dropped out.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/student-dropped/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: masterdata.student.dropped
+    DirectPaymentAdded:
+      name: direct.payment.added
+      title: direct.payment.added
+      summary: A manual/direct payment has been recorded against a student.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-added/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: direct.payment.added
+    DirectPaymentUpdated:
+      name: direct.payment.updated
+      title: direct.payment.updated
+      summary: A previously recorded manual/direct payment has been updated.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-updated/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: direct.payment.updated
+    DirectPaymentCancelled:
+      name: direct.payment.cancelled
+      title: direct.payment.cancelled
+      summary: A previously recorded manual/direct payment has been cancelled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/student/webhooks/manual-payment/direct-payment-cancelled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: direct.payment.cancelled
+    FlexSubscriptionSetup:
+      name: flex.subscription.setup
+      title: flex.subscription.setup
+      summary: The payer has completed Flex setup and a subscription has been created.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/subscription-setup/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.subscription.setup
+    FlexSubscriptionActive:
+      name: flex.subscription.active
+      title: flex.subscription.active
+      summary: The bank has confirmed that debits can happen and the Flex subscription is active.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/subscription-active/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.subscription.active
+    FlexSubscriptionUpdated:
+      name: flex.subscription.updated
+      title: flex.subscription.updated
+      summary: An existing Flex subscription has been updated.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/subscription-updated/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.subscription.updated
+    FlexSubscriptionCancelled:
+      name: flex.subscription.cancelled
+      title: flex.subscription.cancelled
+      summary: A Flex subscription has been cancelled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/subscription-cancelled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.subscription.cancelled
+    FlexSubscriptionClosed:
+      name: flex.subscription.closed
+      title: flex.subscription.closed
+      summary: A Flex subscription has been closed.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/subscription-closed/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.subscription.closed
+    FlexMandateCancelled:
+      name: flex.mandate.cancelled
+      title: flex.mandate.cancelled
+      summary: The auto-debit mandate backing a Flex subscription has been cancelled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/mandate-cancelled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.mandate.cancelled
+    FlexMandateExpired:
+      name: flex.mandate.expired
+      title: flex.mandate.expired
+      summary: The auto-debit mandate backing a Flex subscription has expired.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/mandate-expired/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.mandate.expired
+    FlexInstalmentDebited:
+      name: flex.instalment.debited
+      title: flex.instalment.debited
+      summary: A scheduled Flex instalment has been debited from the payer.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/instalment-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.instalment.debited
+    FlexInstalmentSettled:
+      name: flex.instalment.settled
+      title: flex.instalment.settled
+      summary: A debited Flex instalment has been settled to the institute.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/instalment-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.instalment.settled
+    FlexInstalmentBounced:
+      name: flex.instalment.bounced
+      title: flex.instalment.bounced
+      summary: A scheduled Flex instalment debit has bounced.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/instalment-bounced/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.instalment.bounced
+    FlexDownpaymentDebited:
+      name: flex.downpayment.debited
+      title: flex.downpayment.debited
+      summary: The upfront downpayment collected during Flex setup has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/downpayment-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.downpayment.debited
+    FlexDownpaymentSettled:
+      name: flex.downpayment.settled
+      title: flex.downpayment.settled
+      summary: The Flex downpayment has been settled to the institute.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/flex/webhooks/downpayment-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: flex.downpayment.settled
+    PayPaymentDebited:
+      name: pay.payment.debited
+      title: pay.payment.debited
+      summary: A student-linked Pay payment has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/payment-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: pay.payment.debited
+    PayPaymentSettled:
+      name: pay.payment.settled
+      title: pay.payment.settled
+      summary: A student-linked Pay payment has been settled to the institute.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/payment-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: pay.payment.settled
+    OrderPaymentDebited:
+      name: order.payment.debited
+      title: order.payment.debited
+      summary: A checkout order payment has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/order-payment-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: order.payment.debited
+    OrderPaymentSettled:
+      name: order.payment.settled
+      title: order.payment.settled
+      summary: A checkout order payment has been settled to the institute.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/order-payment-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: order.payment.settled
+    PagePaymentDebited:
+      name: page.payment.debited
+      title: page.payment.debited
+      summary: A payment made through a Jodo hosted payment page has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/page-payment-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: page.payment.debited
+    PagePaymentSettled:
+      name: page.payment.settled
+      title: page.payment.settled
+      summary: A payment made through a Jodo hosted payment page has been settled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/page-payment-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: page.payment.settled
+    PaymentLinkPaymentDebited:
+      name: payment_link.payment.debited
+      title: payment_link.payment.debited
+      summary: A payment made through a shareable payment link has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/payment-link-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: payment_link.payment.debited
+    PaymentLinkPaymentSettled:
+      name: payment_link.payment.settled
+      title: payment_link.payment.settled
+      summary: A payment made through a shareable payment link has been settled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/payment-link-settled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: payment_link.payment.settled
+    PaymentLinkPaymentExpired:
+      name: payment_link.payment.expired
+      title: payment_link.payment.expired
+      summary: A shareable payment link has expired without being paid.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/pay/webhooks/payment-link-expired/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: payment_link.payment.expired
+    CredLoanApplicationStarted:
+      name: cred.loan.application_started
+      title: cred.loan.application_started
+      summary: A student or parent has started an education loan application.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/application-started/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.application_started
+    CredLoanApplicationFilled:
+      name: cred.loan.application_filled
+      title: cred.loan.application_filled
+      summary: An education loan application has been completed by the applicant.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/application-filled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.application_filled
+    CredLoanAgreementSigned:
+      name: cred.loan.agreement_signed
+      title: cred.loan.agreement_signed
+      summary: The loan agreement has been signed by the applicant.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/agreement-signed/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.agreement_signed
+    CredLoanFinalApproved:
+      name: cred.loan.final_approved
+      title: cred.loan.final_approved
+      summary: The education loan application has received final approval.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/final-approved/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.final_approved
+    CredLoanRejected:
+      name: cred.loan.rejected
+      title: cred.loan.rejected
+      summary: The education loan application has been rejected.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/rejected/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.rejected
+    CredLoanCanceled:
+      name: cred.loan.canceled
+      title: cred.loan.canceled
+      summary: The education loan application has been cancelled.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/canceled/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.canceled
+    CredLoanApplicationExpired:
+      name: cred.loan.application_expired
+      title: cred.loan.application_expired
+      summary: The education loan application has expired.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/application-expired/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.application_expired
+    CredLoanDisbursed:
+      name: cred.loan.disbursed
+      title: cred.loan.disbursed
+      summary: The approved education loan has been disbursed.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/disbursed/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.loan.disbursed
+    CredEmiDebited:
+      name: cred.emi.debited
+      title: cred.emi.debited
+      summary: An EMI instalment on a disbursed education loan has been debited.
+      contentType: application/json
+      externalDocs:
+        url: https://docs.jodo.in/cred/webhooks/emi-debited/
+      headers:
+        $ref: '#/components/schemas/WebhookHeaders'
+      payload:
+        allOf:
+        - $ref: '#/components/schemas/WebhookEnvelope'
+        - type: object
+          properties:
+            event:
+              type: string
+              const: cred.emi.debited
+  schemas:
+    WebhookHeaders:
+      type: object
+      properties:
+        X-Jodo-Signature:
+          type: string
+          description: HMAC SHA-256 hex digest of the raw request body, computed with the shared secret_key configured on
+            the subscription. Present only when a secret_key is configured.
+      description: Jodo can additionally send a custom header whose key and value the institute agrees with Jodo (header_key
+        / header_value on the Add Webhook API).
+    WebhookEnvelope:
+      type: object
+      required:
+      - event_id
+      - event
+      - timestamp
+      - version
+      - payload
+      properties:
+        event_id:
+          type: string
+          description: 'A unique identifier for the webhook event. Use it as the deduplication key: the same event can be
+            delivered more than once because of retries, network timeouts or delayed responses.'
+          examples:
+          - 37a87051-4b9f-4540-a155-2e8f2dd8354f
+        event:
+          type: string
+          description: The event type / event_code.
+        timestamp:
+          type: integer
+          description: The Unix timestamp when the event was originated.
+          examples:
+          - 1655448963
+        version:
+          type: string
+          description: The version of the webhook payload format.
+          examples:
+          - '1.0'
+        payload:
+          $ref: '#/components/schemas/WebhookPayload'
+    WebhookPayload:
+      type: object
+      description: 'Event-specific detail. The member objects present depend on the event: student events carry `student`;
+        payment events carry `payment`; Flex events carry `subscription` and/or `payment_schedule`; Cred events carry `application`
+        and/or `disbursement`. See the per-event docs page for the exact set.'
+      properties:
+        jodo_student_id:
+          type:
+          - string
+          - integer
+          description: The ID of the student in the Jodo system.
+        student:
+          $ref: '#/components/schemas/StudentContext'
+        payment:
+          $ref: '#/components/schemas/PaymentContext'
+        subscription:
+          $ref: '#/components/schemas/SubscriptionContext'
+        payment_schedule:
+          type: array
+          description: Instalment details.
+          items:
+            $ref: '#/components/schemas/ScheduleInstalment'
+        application:
+          $ref: '#/components/schemas/LoanApplicationContext'
+        disbursement:
+          $ref: '#/components/schemas/DisbursementContext'
+        order:
+          $ref: '#/components/schemas/OrderContext'
+    StudentContext:
+      type: object
+      properties:
+        fullname:
+          type: string
+        identifier:
+          type: string
+          description: The student's identifier within your system (if applicable).
+        custom_identifier:
+          type: string
+          description: A custom identifier associated with the student.
+        collector_code:
+          type:
+          - string
+          - 'null'
+          description: Branch code, when configured.
+        grade:
+          type: object
+          properties:
+            code:
+              type: string
+              examples:
+              - M1BLUE
+            name:
+              type: string
+              examples:
+              - Montessori 1
+        academic_year_start:
+          type: integer
+        academic_year_end:
+          type: integer
+        primary_contact_number:
+          type: string
+        primary_contact_email:
+          type: string
+        notes:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              value:
+                type: string
+    PaymentContext:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique payment id in the Jodo system.
+        amount:
+          type: number
+        product:
+          type: string
+          description: The payment product as per the Jodo system.
+        mode:
+          type: string
+          description: The mode of payment.
+        transaction_id:
+          type: string
+        notes:
+          type: string
+        settlement_utr:
+          type: string
+          description: The UTR for the disbursement done for the corresponding fee component.
+        paid_at:
+          type: string
+          description: Datetime string indicating when the payment was made.
+        details:
+          type: array
+          description: The fee-component-level breakdown of the payment.
+          items:
+            $ref: '#/components/schemas/FeeComponentAmount'
+    FeeComponentAmount:
+      type: object
+      properties:
+        fee_component:
+          type: string
+          description: The type of fee component, e.g. TUITION_FEE, TRANSPORT_FEE.
+        amount:
+          type: number
+        settlement_utr:
+          type: string
+        settled_at:
+          type: string
+    SubscriptionContext:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the Flex subscription.
+        status:
+          type: string
+          description: The current status of the Flex subscription.
+    ScheduleInstalment:
+      type: object
+      properties:
+        amount:
+          type: integer
+          description: Instalment amount.
+        due_date:
+          type: string
+          description: The due date of an instalment in the payment schedule.
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeComponentAmount'
+    LoanApplicationContext:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique loan id in the Jodo system.
+        status:
+          type: string
+          description: The current status of the loan application.
+        amount:
+          type: number
+          description: The total amount for which the loan is taken.
+        agreement_signed_at:
+          type: string
+          description: Datetime string indicating when the loan agreement was signed.
+    DisbursementContext:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The unique id for the disbursement in the Jodo system.
+        date:
+          type: string
+          description: The date on which the disbursement was done.
+        disbursed_amount:
+          type: number
+        amount:
+          type: number
+          description: The amount for the tranche.
+        is_disbursed:
+          type: boolean
+    OrderContext:
+      type: object
+      properties:
+        status:
+          type: string
+        transaction_id:
+          type: string
+        paid_at:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeComponentAmount'
+        notes:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              value:
+                type: string

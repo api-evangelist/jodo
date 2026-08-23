@@ -1,0 +1,70 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/getting-started/environments/
+docs: https://docs.jodo.in/getting-started/environments/
+available: true
+self_service: false
+access: >-
+  Jodo shares separate API keys and secrets for the UAT/sandbox and production environments. There is
+  no self-service signup for sandbox credentials; they are issued per institute as part of onboarding.
+environments:
+- name: UAT
+  role: sandbox / development
+  base_url: https://ext.devtest1.jodopay.com
+  auth_host: https://api.devtest1.jodopay.com
+  institute_dashboard: https://dashboard.devtest1.jodopay.com
+  customer_dashboard: https://app.devtest1.jodopay.com
+  guidance: 'Docs: "Use UAT for development."'
+- name: Production
+  role: live
+  base_url: https://ext.jodo.in
+  auth_host: https://api.jodo.in
+  institute_dashboard: https://dashboard.jodo.in
+  customer_dashboard: https://app.jodo.in
+  guidance: 'Docs: "and production endpoints when your integration is ready to go live."'
+separation_model: distinct hosts per environment (not a mode flag or key prefix)
+notes:
+- >-
+  Jodo separates environments by HOSTNAME, not by a test/live key prefix or a mode parameter. There
+  is no documented `test_` / `live_` credential prefix, so a credential carries no visible indication
+  of which environment it belongs to — pointing production keys at the UAT host, or the reverse, is
+  not something an integrator can catch by inspection.
+- >-
+  The UAT environment runs on jodopay.com, a different registrable domain from the production
+  jodo.in. Jodo also operates @Jodopay social handles (facebook.com/Jodopay, x.com/Jodo_in,
+  linkedin.com/company/jodopay), which corroborates jodopay.com as a Jodo-controlled domain rather
+  than a third party's.
+- >-
+  UAT has its own webhook source IPs (3.108.86.33, 13.127.40.177, 65.0.77.215) distinct from
+  production, so an integrator's IP allowlist must be environment-aware.
+- >-
+  UAT applies a lower webhook auto-disable threshold than production — a subscription is disabled
+  after 10 continuous delivery failures in UAT versus 100 in production. Development endpoints that
+  go offline overnight will silently unsubscribe.
+test_data:
+  test_cards: not_published
+  test_bank_accounts: not_published
+  magic_values: not_published
+  test_clocks: not_published
+  fixtures_or_triggers: not_published
+  note: >-
+    Jodo publishes NO test values of any kind — no test card numbers, no test UPI VPAs, no test bank
+    accounts or IFSC codes, no magic amounts that force a bounce or a decline, and no way to
+    fast-forward a Flex instalment schedule or an eNACH mandate. This is the largest sandbox gap: the
+    most important paths to rehearse on this API are the ones that take real elapsed time
+    (mandate registration, scheduled instalment debit, bounce, settlement, EMI) and there is no
+    documented way to simulate any of them. An integrator cannot deterministically produce
+    flex.instalment.bounced or flex.mandate.expired in UAT from the published docs.
+  webhook_replay: not_documented
+  note_webhook_testing: >-
+    No webhook simulator, test-event trigger or replay endpoint is documented. Failure notification
+    emails include the payload, which is the only published way to recover an event body after a
+    failed delivery.
+console:
+  institute_dashboard: https://dashboard.jodo.in
+  customer_dashboard: https://app.jodo.in
+  api_console: false
+  note: >-
+    The dashboards are operational UIs for institute staff and for parents/students. There is no
+    interactive API console, "try it" widget or request builder in the documentation — the reference
+    pages show static curl/Python/PHP/NodeJS snippets only.

@@ -1,0 +1,40 @@
+generated: '2026-08-23'
+method: generated
+source: https://docs.jodo.in/
+description: >-
+  Packaged Agent Skills for the Jodo ERP Integrations API and its webhook surface. Each skill mirrors
+  a flow Jodo documents — the push and order integration patterns, Flex plan setup, and webhook
+  handling — and every operation named is a verified operationId from
+  openapi/jodo-integrations-openapi.yml in this repo. The operational rules in each skill (no
+  idempotency key, no refund path, debited-vs-settled, the UAT auto-disable threshold, the missing
+  bounce reason) are transcribed from Jodo's own documentation, not inferred.
+skill_count: 4
+skills:
+- name: jodo-onboard-student-push
+  file: jodo-onboard-student-push.md
+  api: Jodo ERP Integrations API
+  summary: Onboard a student from an ERP using the push integration pattern, resolving institute codes first.
+  operations: [listBranches, listGrades, listFeeComponents, listDiscounts, registerUser, registerStudent, getStudent]
+- name: jodo-collect-adhoc-payment
+  file: jodo-collect-adhoc-payment.md
+  api: Jodo ERP Integrations API
+  summary: Collect a one-off payment via hosted checkout order or shareable payment link, and reconcile it to settlement.
+  operations: [createPayOrder, getPayOrder, createPaymentLink, getPaymentLink, cancelPaymentLink]
+- name: jodo-receive-webhooks
+  file: jodo-receive-webhooks.md
+  api: Jodo Webhooks
+  summary: Register, verify and idempotently process Jodo webhook events within the published retry and auto-disable budget.
+  operations: [addWebhook, listWebhooks, getWebhook, disableWebhook]
+- name: jodo-flex-instalment-plan
+  file: jodo-flex-instalment-plan.md
+  api: Jodo ERP Integrations API
+  summary: Configure a Flex instalment plan and track it through mandate setup, debits, settlements and bounces.
+  operations: [getStudent, updateStudentFee, listFeeComponents, manageFlexPlan, getFlexSchedule, listStudentProducts, getAccessToken]
+provider_published_skills:
+  found: false
+  probed:
+  - url: https://docs.jodo.in/llms.txt
+    status: 404
+  - url: https://api.github.com/orgs/jodohq
+    status: 200
+    note: 0 public repositories; no AGENTS.md or skills directory to harvest.

@@ -1,18 +1,91 @@
 aid: jodo
 name: Jodo
-description: 'Jodo is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Jodo is a Bengaluru-based fintech that automates fee collection for Indian educational institutes —
+  schools, colleges, universities, coaching centres and skilling institutes. Founded in 2020 by Atulya
+  Bhat, Raghav Nagarajan and Koustav Dey, the company says it serves 5,000+ institutes across 90+ cities
+  and has processed over INR 30,000 crore in fees for 25 lakh+ students. Jodo ships three products on one
+  platform: Flex (structured fees paid in instalments through an auto-debit mandate), Pay (student-linked
+  collections, hosted checkout orders and shareable payment links) and Cred (education loans originated
+  with NBFC lending partners). Its public ERP Integrations API lets an institute's ERP, finance or
+  student-information system register users and students, sync fee structures and discounts, reconcile
+  manual payments, configure instalment schedules, create checkout orders and payment links, and manage
+  webhook subscriptions. Jodo publishes a substantial developer reference at docs.jodo.in covering 25 REST
+  operations and 36 webhook events, with documented UAT and production environments, Basic Auth, an error
+  code registry, a retry and idempotency policy, HMAC SHA-256 webhook signatures and published source IP
+  ranges — but no machine-readable OpenAPI or AsyncAPI document, and no public pricing.
 url: https://raw.githubusercontent.com/api-evangelist/jodo/refs/heads/main/apis.yml
+image: https://www.jodo.in/assets/images/icons/favicon.png
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-23'
 modified: '2026-08-23'
 tags:
 - Company
-apis: []
+- Payments
+- Education
+- Fintech
+- Fee Collection
+- Lending
+- India
+- Webhooks
+- ERP Integration
+- Financial Services
+apis:
+- name: Jodo ERP Integrations API
+  description: >-
+    REST API for connecting an institute's ERP, finance or student-information system to Jodo fee
+    collection. Covers user registration and hosted-flow access tokens, student master data and fee
+    structures, manual/direct payment reconciliation, Flex instalment plans, Pay checkout orders and
+    shareable payment links, institute reference data, and webhook subscription management. Basic Auth;
+    JSON request and response bodies; documented UAT and production hosts.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Payments
+  - Education
+  - Fee Collection
+  - ERP Integration
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-integrations-openapi.yml
+  - type: Overlay
+    url: overlays/jodo-integrations-overlay.yaml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
+- name: Jodo Webhooks
+  description: >-
+    Event delivery surface for the Jodo platform. Jodo POSTs 36 documented events across student master
+    data, manual payments, Flex subscriptions/mandates/instalments, Pay collections and Cred education
+    loans to a URL the institute registers per event_code. At-least-once delivery with a published retry
+    policy, event_id deduplication, HMAC SHA-256 X-Jodo-Signature verification, custom header validation
+    and published source IP allowlists.
+  humanURL: https://docs.jodo.in/webhooks/handling-webhook-events/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Webhooks
+  - Events
+  - Payments
+  properties:
+  - type: AsyncAPI
+    url: asyncapi/jodo-webhooks-asyncapi.yml
+  - type: Webhooks
+    url: asyncapi/jodo-webhooks-asyncapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/webhooks/handling-webhook-events/
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
@@ -20,4 +93,63 @@ maintainers:
   email: info@apis.io
 common:
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://www.jodo.in/
+- type: DeveloperPortal
+  url: https://docs.jodo.in/
+- type: Documentation
+  url: https://docs.jodo.in/
+- type: APIReference
+  url: https://docs.jodo.in/getting-started/api-structure/
+- type: GettingStarted
+  url: https://docs.jodo.in/getting-started/introduction/
+- type: Authentication
+  url: authentication/jodo-authentication.yml
+- type: Sandbox
+  url: sandbox/jodo-sandbox.yml
+- type: StatusPage
+  url: https://status.jodo.in/
+- type: Deprecation
+  url: lifecycle/jodo-lifecycle.yml
+- type: Lifecycle
+  url: lifecycle/jodo-lifecycle.yml
+- type: RateLimits
+  url: rate-limits/jodo-rate-limits.yml
+- type: Plans
+  url: plans/jodo-plans-pricing.yml
+- type: ErrorCatalog
+  url: errors/jodo-error-codes.yml
+- type: Conventions
+  url: conventions/jodo-conventions.yml
+- type: DataModel
+  url: data-model/jodo-data-model.yml
+- type: Conformance
+  url: conformance/jodo-conformance.yml
+- type: Packages
+  url: packages/jodo-packages.yml
+- type: MCPCandidate
+  url: mcp/jodo-mcp.yml
+- type: LLMsTxt
+  url: llms/jodo-llms.txt
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DomainSecurity
+  url: security/jodo-domain-security.yml
+- type: TrustCenter
+  url: https://compliance.jodo.in/
+- type: Blog
+  url: https://www.jodo.in/blog/
+- type: GitHubOrganization
+  url: https://github.com/jodohq
+- type: Support
+  url: https://www.jodo.in/contact-us/
+- type: Login
+  url: https://app.jodo.in/institute/login
+- type: TermsOfService
+  url: https://www.jodo.in/terms-and-conditions/
+- type: PrivacyPolicy
+  url: https://www.jodo.in/privacy-policy/
+x-enrichment:
+  date: '2026-08-23'
+  status: enriched
+  artifacts_added: 23
+  pass: local-v1

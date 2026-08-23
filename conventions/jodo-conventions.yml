@@ -1,0 +1,215 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/getting-started/api-structure/
+docs:
+- https://docs.jodo.in/getting-started/api-structure/
+- https://docs.jodo.in/getting-started/authentication/
+- https://docs.jodo.in/webhooks/reliability/
+- https://docs.jodo.in/webhooks/security/
+api_style: REST
+transport: HTTPS
+media_type: application/json
+auth:
+  style: HTTP Basic
+  header: 'Authorization: Basic <token>'
+  detail: authentication/jodo-authentication.yml
+base_url:
+  production: https://ext.jodo.in
+  uat: https://ext.devtest1.jodopay.com
+  note: >-
+    Reference pages show endpoint paths relative to a `[base_url]` placeholder. api.jodo.in is
+    documented as `jodo_auth_host` and issues an HTTP 301 to https://ext.jodo.in.
+  docs: https://docs.jodo.in/getting-started/environments/
+response_envelope:
+  success:
+    shape: '{ "status": "success", "data": { ... } }'
+    write_only_shape: '{ "status": "success" }'
+    note: Some write APIs return only the status key with no data member.
+  error:
+    shape: HTTP status + machine-readable code + user-facing message
+    detail: errors/jodo-error-codes.yml
+  forward_compatibility: >-
+    "Extra undocumented fields should be treated as beta and may change." Undocumented resources and
+    properties are explicitly out of contract.
+pagination:
+  supported: not_documented
+  note: >-
+    None of the five list operations (List Payments, List Products, List Branches, List Grades,
+    List Fee Components, List Discounts, List Webhooks) documents a limit, offset, page, cursor or
+    next-link parameter, and no list response example shows pagination metadata. An agent cannot
+    determine whether a list response is complete. This is a real gap for a student payment history
+    on an institute with thousands of students.
+filtering:
+  supported: partial
+  parameters:
+  - name: product_type
+    on: GET /api/v1/integrations/erp/students/{jodo_student_id}/products
+    values: [flex, pay, cred]
+  - name: collector_code
+    on: List Grades, List Fee Components, List Discounts
+    note: Branch code. Required when the institute is part of a group or has branch-specific configuration.
+field_expansion:
+  supported: false
+  note: No expand/fields/include parameter is documented on any operation.
+metadata:
+  supported: true
+  mechanism: '`notes` array of {key, value} pairs on Pay orders and payment links; `notes` string on manual payments.'
+  purpose: >-
+    Documented as the reconciliation hook — "Keep your own ERP identifiers in supported identifier or
+    notes fields so webhook events can be reconciled back to your system." Examples use
+    erp_reference_id, event IDs, campaign IDs and admission workflow IDs.
+  docs: https://docs.jodo.in/pay/api/create-payment-link/
+request_id_tracing:
+  supported: not_documented
+  note: >-
+    No request-id, correlation-id or trace header is documented on requests or responses. Support
+    triage has no published correlation handle. Webhook events do carry an `event_id`, but that is
+    delivery-side only.
+versioning:
+  scheme: URI path
+  current: v1
+  pattern: /api/v1/integrations/...
+  detail: lifecycle/jodo-lifecycle.yml
+rate_limit_signaling:
+  documented: partial
+  detail: rate-limits/jodo-rate-limits.yml
+  note: >-
+    429 is documented as a status code and exponential backoff is recommended, but no rate-limit
+    response headers, numeric limits, windows or Retry-After are published.
+idempotency:
+  request_level:
+    supported: not_documented
+    note: >-
+      Jodo publishes NO request-level idempotency mechanism — there is no Idempotency-Key header, no
+      documented safe-replay semantics on any POST, and no statement that retrying a create is safe.
+      This matters most on POST /api/v1/integrations/pay/orders and POST
+      /api/v1/integrations/pay/payment_links, where a retried request after a timeout could plausibly
+      create a second collectible order. Do not assume replay safety; read back with the
+      corresponding GET before retrying a create.
+  partial_mechanisms:
+  - mechanism: upsert on webhook subscription
+    operation: addWebhook
+    detail: >-
+      Documented explicitly: "A webhook event can be subscribed to only one URL. Calling this API
+      again for the same event_code updates the existing subscription." This one write is genuinely
+      idempotent on event_code.
+    docs: https://docs.jodo.in/configuration/api/add-webhook/
+  - mechanism: client-supplied transaction_id
+    operation: addStudentPayment
+    detail: >-
+      The caller supplies transaction_id ("Unique transaction ID from your system") and the same value
+      is the path key for cancelStudentPayment. The docs do not state that a repeated POST with the
+      same transaction_id is deduplicated, so this is a correlation key, not a documented
+      idempotency key.
+    docs: https://docs.jodo.in/student/api/add-payment/
+  delivery_level:
+    supported: true
+    detail: >-
+      Webhook delivery is at-least-once and Jodo documents the consumer obligation directly: "Webhook
+      handlers must be idempotent. The same event can be delivered more than once because of retries,
+      network timeouts, or delayed responses." Deduplicate on event_id, or on the transaction/order/
+      subscription/payment identifier in the payload.
+    docs: https://docs.jodo.in/webhooks/reliability/
+  assessment: >-
+    Documented idempotency is delivery-side (the integrator's obligation) plus one upsert write. The
+    provider offers no request-level idempotency guarantee on its payment-creating writes. No
+    Idempotency pointer is emitted in apis.yml for this reason.
+reversibility:
+  applicable: true
+  write_surface: true
+  grade: documented
+  grade_basis: >-
+    Reversal operations exist and are documented for three of the write surfaces, but Jodo publishes
+    NO time window, cut-off or state boundary for any of them — no "within N days", no "before
+    settlement", no refund window. Per the 0.12.0 rubric that is `documented` (0.4), not `verified`.
+    No window is asserted here because the docs state none, and inventing one on a payments API
+    could cost a user real money.
+  operations:
+  - action: cancel a manually recorded student payment
+    reversal_operation_id: cancelStudentPayment
+    method: DELETE
+    path: /api/v1/integrations/erp/students/{jodo_student_id}/payments/{transaction_id}
+    window: not_stated
+    constraints:
+    - 'Docs: "Use this only for payments recorded through the direct/manual payment API."'
+    - 'Docs: "Use the same transaction_id that was sent when the payment was added."'
+    emits_event: direct.payment.cancelled
+    docs: https://docs.jodo.in/student/api/cancel-payment/
+  - action: cancel a shareable payment link before it is paid
+    reversal_operation_id: cancelPaymentLink
+    method: DELETE
+    path: /api/v1/integrations/pay/payment_links/{order_id}
+    window: not_stated
+    constraints:
+    - 'Docs: "Cancel only links that should no longer accept payments."'
+    - 'Docs: "Use Get Payment Link to verify the final status if your workflow needs confirmation."'
+    - The resulting status is `cancelled`, one of the four documented payment link statuses.
+    docs: https://docs.jodo.in/pay/api/cancel-payment-link/
+  - action: disable a webhook subscription
+    reversal_operation_id: disableWebhook
+    method: DELETE
+    path: /api/v1/integrations/erp/webhooks/{webhook_id}
+    window: not_stated
+    docs: https://docs.jodo.in/configuration/api/disable-webhook/
+  irreversible_or_undocumented:
+  - operation: createPayOrder
+    note: >-
+      No cancel/void/expire operation is documented for a Pay Order. Only payment links have a
+      documented cancel. An order created in error appears to have no API remedy.
+  - operation: manageFlexPlan
+    note: >-
+      No API cancels a Flex subscription or mandate. The lifecycle emits flex.subscription.cancelled,
+      flex.subscription.closed, flex.mandate.cancelled and flex.mandate.expired as INBOUND events,
+      so cancellation happens somewhere other than this API — the docs do not say where.
+  - operation: 'settled payments (any product)'
+    note: >-
+      No refund or reversal API is documented anywhere. Once a payment reaches a *.settled event,
+      the published surface offers no way to return funds. Refunds, if they exist, are out of band.
+  - operation: 'Cred loan disbursement'
+    note: No cancellation or reversal operation is documented after cred.loan.disbursed.
+dry_run_mode:
+  supported: false
+  note: >-
+    No dry-run, preview, simulate or validate-only parameter is documented on any operation. The UAT
+    environment is the only rehearsal mechanism — see sandbox/jodo-sandbox.yml.
+webhook_conventions:
+  transport: HTTPS POST from Jodo to a URL the institute registers per event_code
+  envelope: '{ event_id, event, timestamp (unix int), version, payload }'
+  version: '1.0'
+  success_criterion: any 2xx response
+  retry_policy: up to 5 retries, spaced across 6-hour and 24-hour intervals, for up to 3 days
+  auto_disable:
+    production: 100 continuous failures
+    uat: 10 continuous failures
+  failure_notifications: >-
+    Configurable email list receives the payload, the response code from your endpoint and a failure hint.
+  signature:
+    header: X-Jodo-Signature
+    algorithm: HMAC SHA-256 hex over the raw request body
+  source_ips:
+    production: [3.6.234.242, 3.111.80.40, 13.232.24.175, 43.204.202.190]
+    uat: [3.108.86.33, 13.127.40.177, 65.0.77.215]
+  docs: https://docs.jodo.in/webhooks/reliability/
+  detail: asyncapi/jodo-webhooks-asyncapi.yml
+integration_patterns:
+  documented: [pull, push, order]
+  description: >-
+    Pull — the ERP stays the source of truth and Jodo fetches student or fee details on demand.
+    Push — the ERP proactively creates and updates student, fee and user context in Jodo.
+    Order — a payment link or hosted checkout for an ad-hoc collection with no student record first.
+  docs: https://docs.jodo.in/getting-started/integration-patterns/overview/
+hosted_flow:
+  mechanism: redirect
+  url: 'https://[base_url]/consumer/login-redirect?access_token=<token>'
+  parameters: [access_token, jodo_student_id, product_type, callback_url, create_application]
+  guidance: >-
+    "Treat the callback as a user navigation signal, not as final proof of payment." Confirm status
+    server-side via the Get APIs and webhooks before updating financial records.
+  docs: https://docs.jodo.in/platforms/overview/
+cross_references:
+  errors: errors/jodo-error-codes.yml
+  lifecycle: lifecycle/jodo-lifecycle.yml
+  authentication: authentication/jodo-authentication.yml
+  rate_limits: rate-limits/jodo-rate-limits.yml
+  sandbox: sandbox/jodo-sandbox.yml
+  events: asyncapi/jodo-webhooks-asyncapi.yml

@@ -1,0 +1,133 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Jodo ERP Integrations API
+  version: 1.0.0
+  x-generated: '2026-08-23'
+  x-method: generated
+  x-source: openapi/jodo-integrations-openapi.yml
+  x-description: >-
+    Applies API Evangelist's derived operational context on top of the docs-grounded Jodo OpenAPI in
+    this repo. This overlay adds NO endpoint, parameter or field — it annotates operations that
+    already exist with agent-relevant semantics that Jodo documents in prose elsewhere on
+    docs.jodo.in but does not carry in the contract: reversibility, replay safety, and consequence
+    class. The base document is never mutated.
+extends: ../openapi/jodo-integrations-openapi.yml
+actions:
+- target: $.info
+  description: Record that no pagination contract exists on any list operation.
+  update:
+    x-pagination: none-documented
+    x-pagination-note: >-
+      No limit/offset/page/cursor parameter and no pagination metadata is documented on any of the
+      seven list operations. Callers cannot determine whether a list response is complete.
+- target: $.info
+  description: Record the absence of request-level idempotency across the write surface.
+  update:
+    x-idempotency: none-documented
+    x-idempotency-note: >-
+      No Idempotency-Key header and no documented safe-replay semantics on any POST. Read back with
+      the corresponding GET before retrying a create. See conventions/jodo-conventions.yml.
+- target: $.paths['/api/v1/integrations/pay/orders'].post
+  description: Flag createPayOrder as a consequential, non-reversible, non-replay-safe write.
+  update:
+    x-consequence: high
+    x-reversible: false
+    x-reversal-note: >-
+      No cancel, void or expire operation is documented for a Pay Order — only payment links have a
+      documented cancel. An order created in error has no published API remedy.
+    x-replay-safe: false
+    x-replay-note: >-
+      No idempotency key. A retry after a timeout may create a second collectible order. Confirm with
+      getPayOrder before retrying.
+- target: $.paths['/api/v1/integrations/pay/payment_links'].post
+  description: Flag createPaymentLink as consequential but reversible.
+  update:
+    x-consequence: high
+    x-reversible: true
+    x-reversal-operation: cancelPaymentLink
+    x-reversal-window: not-stated
+    x-replay-safe: false
+    x-replay-note: No idempotency key; a retry may create a second collectible link.
+- target: $.paths['/api/v1/integrations/pay/payment_links/{order_id}'].delete
+  description: Mark cancelPaymentLink as the reversal path for createPaymentLink.
+  update:
+    x-consequence: medium
+    x-reversal-for: createPaymentLink
+    x-reversal-window: not-stated
+    x-resulting-status: cancelled
+- target: $.paths['/api/v1/integrations/erp/students/{jodo_student_id}/payments'].post
+  description: Flag addStudentPayment as a financial write with a documented reversal.
+  update:
+    x-consequence: high
+    x-reversible: true
+    x-reversal-operation: cancelStudentPayment
+    x-reversal-window: not-stated
+    x-emits-event: direct.payment.added
+    x-correlation-key: transaction_id
+    x-replay-safe: false
+    x-replay-note: >-
+      The caller supplies transaction_id, but the docs do not state that a repeated POST with the same
+      value is deduplicated. Treat it as a correlation key, not an idempotency key.
+- target: $.paths['/api/v1/integrations/erp/students/{jodo_student_id}/payments/{transaction_id}'].delete
+  description: Mark cancelStudentPayment as the reversal path, with its documented constraint.
+  update:
+    x-consequence: high
+    x-reversal-for: addStudentPayment
+    x-reversal-window: not-stated
+    x-constraint: >-
+      Only valid for payments recorded through the direct/manual payment API, using the same
+      transaction_id that was sent when the payment was added.
+    x-emits-event: direct.payment.cancelled
+- target: $.paths['/api/v1/integrations/erp/students/{jodo_student_id}/fee'].patch
+  description: Flag updateStudentFee as changing what a family owes.
+  update:
+    x-consequence: high
+    x-reversible: false
+    x-reversal-note: >-
+      No fee-change history or revert operation is documented; the PATCH replaces the fee component
+      set. Read getStudent first to capture the prior state.
+- target: $.paths['/api/v1/integrations/flex/students/{jodo_student_id}/plans'].post
+  description: Flag manageFlexPlan as a consequential write with no documented reversal.
+  update:
+    x-consequence: high
+    x-reversible: false
+    x-reversal-note: >-
+      No API cancels a Flex subscription or its mandate. flex.subscription.cancelled and
+      flex.mandate.cancelled arrive as inbound events only, so cancellation happens outside this
+      contract.
+- target: $.paths['/api/v1/integrations/erp/users/{registration_id}/access_token'].get
+  description: Flag getAccessToken as credential-issuing despite being a GET.
+  update:
+    x-consequence: medium
+    x-issues-credential: true
+    x-credential-note: >-
+      A GET that mints a short-lived end-user token granting access to a Jodo-hosted financial flow.
+      Safe-method semantics do not apply; treat it as an escalation-worthy action and never expose the
+      token to client-side code.
+- target: $.paths['/api/v1/integrations/erp/webhooks'].post
+  description: Record the documented upsert semantics — the one genuinely idempotent write.
+  update:
+    x-consequence: medium
+    x-idempotent: true
+    x-idempotency-key: event_code
+    x-idempotency-note: >-
+      Documented upsert: one event_code maps to exactly one URL, and repeating the call for the same
+      event_code updates the existing subscription rather than creating a duplicate. After creation
+      only secret_key, header_key and header_value are mutable.
+- target: $.paths['/api/v1/integrations/erp/webhooks/{webhook_id}'].delete
+  description: Flag disableWebhook as silently stopping event delivery.
+  update:
+    x-consequence: medium
+    x-reversible: true
+    x-reversal-operation: addWebhook
+    x-operational-note: >-
+      Disabling a subscription stops delivery of that event_code with no further signal. Jodo also
+      auto-disables a subscription after continuous delivery failure (production 100, UAT 10).
+- target: $.components.securitySchemes.basicAuth
+  description: Record the absence of a least-privilege boundary.
+  update:
+    x-scope-model: none
+    x-least-privilege: false
+    x-note: >-
+      One institute-wide credential per environment authorises every operation. The credential that
+      lists grades also creates payment links and cancels payments. There is no read-only key.

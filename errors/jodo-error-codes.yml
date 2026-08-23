@@ -1,0 +1,88 @@
+generated: '2026-08-23'
+method: searched
+source: https://docs.jodo.in/getting-started/api-structure/
+docs: https://docs.jodo.in/getting-started/api-structure/
+format: proprietary
+rfc9457: false
+note: >-
+  Jodo does not use RFC 9457 application/problem+json. Errors are returned in the same JSON envelope
+  as successes, carrying an HTTP status code, a user-facing message and a machine-readable code.
+  The docs describe the contract as "an HTTP status code along with an error message and
+  machine-readable error code in the response body".
+envelope:
+  content_type: application/json
+  shape:
+    status: 'string — "error"'
+    code: 'string — machine-readable Jodo error code'
+    message: 'string — user-friendly explanation of the error'
+  note: >-
+    The docs state the shape in prose and show error codes in per-endpoint tables, but do not publish
+    a worked error response example. The field names above are the documented components; confirm the
+    exact JSON keys against a live 4xx response before writing a parser.
+status_codes:
+- status: 400
+  meaning: Bad Request. The request contains invalid or missing data.
+- status: 401
+  meaning: Unauthorized. Authentication failed or credentials are invalid.
+- status: 403
+  meaning: Forbidden. The caller does not have access to the resource.
+- status: 404
+  meaning: Not Found. The specified resource could not be found.
+- status: 405
+  meaning: Method Not Allowed. The HTTP method is not valid for the resource.
+- status: 406
+  meaning: Not Acceptable. The requested format is unsupported.
+- status: 409
+  meaning: Conflict. The requested operation conflicts with current resource state.
+- status: 429
+  meaning: Too many requests.
+- status: 500
+  meaning: Internal Server Error. Try again later.
+- status: 502
+  meaning: Bad Gateway. An upstream service is temporarily unavailable.
+- status: 503
+  meaning: Service Unavailable. The API is temporarily offline or under maintenance.
+error_codes:
+- code: HUE00000
+  http_status: 400
+  title: Bad request error
+  domain: Pay / Configuration
+  remediation: Validate required fields and value formats against the endpoint reference before retrying.
+  seen_on:
+  - https://docs.jodo.in/pay/api/create-payment-link/
+  - https://docs.jodo.in/pay/api/get-payment-link/
+  - https://docs.jodo.in/pay/api/cancel-payment-link/
+  - https://docs.jodo.in/configuration/api/add-webhook/
+  - https://docs.jodo.in/configuration/api/disable-webhook/
+- code: HUE00001
+  http_status: 404
+  title: Resource not found
+  domain: Pay
+  remediation: Confirm the order_id was returned by Create Pay Order or Create Payment Link and belongs to this institute.
+  seen_on:
+  - https://docs.jodo.in/pay/api/cancel-payment-link/
+- code: MAE00000
+  http_status: 400
+  title: Bad request error
+  domain: Student manual payment
+  remediation: Validate amount, paid_at and the fee_components allocation against the Add Payment reference.
+  seen_on:
+  - https://docs.jodo.in/student/api/add-payment/
+- code: MAE00001
+  http_status: 404
+  title: Student not found
+  domain: Student manual payment
+  remediation: Confirm the jodo_student_id exists (GET /api/v1/integrations/erp/students/{jodo_student_id}) before recording a payment.
+  seen_on:
+  - https://docs.jodo.in/student/api/add-payment/
+code_count: 4
+coverage_note: >-
+  Jodo publishes no consolidated error-code reference page. The four codes above are every code
+  named anywhere across the 85 documentation pages crawled on 2026-08-23; the HUE/MAE prefixes
+  imply a wider internal registry that is not published. An integrator cannot enumerate the error
+  space in advance and must handle unknown codes defensively.
+gaps:
+- No central error-code reference page.
+- No published error response example anywhere in the docs.
+- No RFC 9457 problem+json.
+- No documented request/correlation identifier returned on errors for support triage.

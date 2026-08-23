@@ -1,0 +1,153 @@
+generated: '2026-08-23'
+method: derived
+source: openapi/jodo-integrations-openapi.yml
+status: candidate
+official_server: false
+summary: >-
+  Jodo ships no MCP server. No hosted endpoint, no stdio package, no reference in the documentation,
+  the marketing site or the GitHub organisation. The tools[] below are a CANDIDATE mapping derived
+  from the 25 operations in the docs-grounded OpenAPI in this repo — they describe what an MCP server
+  for Jodo would expose, not anything Jodo publishes. Nothing here is callable today.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: derived
+  note: >-
+    No MCP surface exists to verify. mcp.jodo.in does not resolve (NXDOMAIN). No /.well-known/
+    document on any Jodo host advertises an MCP endpoint (see well-known/jodo-well-known.yml — every
+    path probed on every host is a miss). No endpoint URL is guessed here.
+discovery_probes:
+- host: mcp.jodo.in
+  result: NXDOMAIN
+- host: ext.jodo.in
+  path: /mcp
+  note: Host answers {"message":"Not Found"} on every unauthenticated path (AWS API Gateway).
+- source: https://docs.jodo.in/
+  result: No mention of MCP, Model Context Protocol, agents or tools across 85 crawled pages.
+- source: https://api.github.com/orgs/jodohq
+  result: 0 public repositories.
+readiness_assessment: >-
+  Jodo is a poor MCP candidate as published, for two structural reasons rather than any missing tool.
+  First, authentication is institute-wide HTTP Basic with no scopes, so an MCP server could not
+  narrow an agent to read-only reference data — the credential that lists grades also creates payment
+  links. Second, no request-level idempotency is documented on the payment-creating writes, so a
+  retrying agent has no safe-replay guarantee. A read-only server over the GET operations would be
+  materially safer than a full mapping.
+tools:
+- name: get_student
+  rest: [getStudent]
+  category: read
+  description: Retrieve a student record and fee summary by Jodo student ID.
+- name: list_student_products
+  rest: [listStudentProducts]
+  category: read
+  description: List the Jodo products (flex, pay, cred) attached to a student.
+- name: list_student_payments
+  rest: [listStudentPayments]
+  category: read
+  description: Retrieve payment history for a student.
+- name: get_flex_schedule
+  rest: [getFlexSchedule]
+  category: read
+  description: Fetch the Flex instalment schedule configured for a student.
+- name: get_pay_order
+  rest: [getPayOrder]
+  category: read
+  description: Retrieve the current state of a Pay checkout order.
+- name: get_payment_link
+  rest: [getPaymentLink]
+  category: read
+  description: Retrieve the current state of a shareable payment link.
+- name: list_branches
+  rest: [listBranches]
+  category: read
+  description: List branch names and collector codes configured for the institute.
+- name: list_grades
+  rest: [listGrades]
+  category: read
+  description: List grade codes used in student payloads.
+- name: list_fee_components
+  rest: [listFeeComponents]
+  category: read
+  description: List fee component codes used in fee and payment payloads.
+- name: list_discounts
+  rest: [listDiscounts]
+  category: read
+  description: List discount codes supported for fee configuration.
+- name: list_webhooks
+  rest: [listWebhooks]
+  category: read
+  description: List webhook subscriptions configured for the institute.
+- name: get_webhook
+  rest: [getWebhook]
+  category: read
+  description: Fetch a webhook subscription by ID.
+- name: register_user
+  rest: [registerUser]
+  category: write
+  consequence: low
+  description: Register an ERP/institute user by name, phone and email.
+- name: get_access_token
+  rest: [getAccessToken]
+  category: write
+  consequence: medium
+  description: Mint a short-lived token that logs an end user into a Jodo-hosted flow. Issues a credential — should require escalation.
+- name: register_student
+  rest: [registerStudent]
+  category: write
+  consequence: medium
+  description: Create a student profile with fee components and historic payments.
+- name: update_student
+  rest: [updateStudent]
+  category: write
+  consequence: medium
+  description: Update a student profile.
+- name: update_student_fee
+  rest: [updateStudentFee]
+  category: write
+  consequence: high
+  description: Rewrite a student's fee components and discounts. Changes what a family owes.
+- name: add_student_payment
+  rest: [addStudentPayment]
+  category: write
+  consequence: high
+  description: Record a manual payment against a student. Financial record; reversible via cancel_student_payment.
+- name: cancel_student_payment
+  rest: [cancelStudentPayment]
+  category: write
+  consequence: high
+  description: Cancel a manually recorded payment. Reversal path for add_student_payment; no window documented.
+- name: manage_flex_plan
+  rest: [manageFlexPlan]
+  category: write
+  consequence: high
+  description: Configure a student's instalment schedule. No documented reversal operation.
+- name: create_pay_order
+  rest: [createPayOrder]
+  category: write
+  consequence: high
+  description: Create a collectible checkout order. No documented cancel operation and no idempotency key.
+- name: create_payment_link
+  rest: [createPaymentLink]
+  category: write
+  consequence: high
+  description: Create a shareable collectible payment link. Reversible via cancel_payment_link.
+- name: cancel_payment_link
+  rest: [cancelPaymentLink]
+  category: write
+  consequence: medium
+  description: Cancel a payment link so it stops accepting payment.
+- name: add_webhook
+  rest: [addWebhook]
+  category: write
+  consequence: medium
+  description: Register or update the destination URL for an event code. Idempotent upsert on event_code.
+- name: disable_webhook
+  rest: [disableWebhook]
+  category: write
+  consequence: medium
+  description: Disable a webhook subscription. Stops event delivery.
+tool_count: 25

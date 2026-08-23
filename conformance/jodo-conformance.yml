@@ -1,0 +1,157 @@
+generated: '2026-08-23'
+method: derived
+source: openapi/jodo-integrations-openapi.yml
+docs:
+- https://docs.jodo.in/getting-started/api-structure/
+- https://docs.jodo.in/webhooks/security/
+- https://www.jodo.in/lending-partners/
+summary: >-
+  Jodo's public contract conforms to general REST/JSON conventions and uses one IETF standard
+  primitive (HTTP Basic Auth, RFC 7617) plus HMAC-SHA256 webhook signing. It declares NO domain
+  standard in its contract. Its market — Indian fee collection and consumer lending — has strong
+  domain standards (NPCI UPI/UPI Autopay, NACH/eNACH, RBI Digital Lending Guidelines), and Jodo's
+  marketing and lending-partner pages show the company plainly operates on those rails, but the API
+  contract itself never names them: no mandate schema, no UMRN field, no NACH message type, no
+  UPI-specific object. An integrator reading only the contract cannot tell which rail a Flex mandate
+  runs on.
+standards:
+- id: rest
+  conforms: true
+  evidence: >-
+    'Our APIs follow a fully RESTful architecture, providing responses exclusively in JSON format,
+    and adhere to standard HTTP response codes, authentication, and verbs.'
+    (https://docs.jodo.in/getting-started/authentication/). Resource-oriented paths, GET/POST/PATCH/
+    DELETE used semantically across all 25 operations.
+- id: json
+  conforms: true
+  evidence: All requests and responses are application/json.
+- id: rfc7617-basic-auth
+  conforms: true
+  evidence: >-
+    'All the APIs are authenticated using Basic Auth.'
+    (https://docs.jodo.in/getting-started/authentication/)
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors are returned in the ordinary JSON envelope with a proprietary code (HUE00000/HUE00001/
+    MAE00000/MAE00001), not as application/problem+json. See errors/jodo-error-codes.yml.
+- id: oauth2
+  conforms: false
+  evidence: No OAuth 2.0 surface. No token endpoint, no authorization server metadata, no scopes.
+- id: oidc
+  conforms: false
+  evidence: No /.well-known/openid-configuration on any host (well-known/jodo-well-known.yml).
+- id: pagination
+  conforms: false
+  evidence: >-
+    No pagination parameters or response metadata are documented on any of the list operations.
+- id: idempotency
+  conforms: partial
+  evidence: >-
+    No request-level idempotency key on any write. Delivery-side idempotency IS documented for
+    webhooks (stable event_id, at-least-once delivery, explicit consumer obligation) and addWebhook
+    is a documented upsert on event_code. See conventions/jodo-conventions.yml.
+- id: hmac-webhook-signing
+  conforms: true
+  evidence: >-
+    'Generate an HMAC SHA-256 signature using the shared secret and raw body. Compare your generated
+    signature with X-Jodo-Signature.' (https://docs.jodo.in/webhooks/security/). Raw-body HMAC over a
+    shared secret is the conventional webhook signing pattern.
+  gap: >-
+    No timestamp is included in the signed material and no tolerance window is documented, so the
+    signature alone does not defend against replay. The envelope carries a `timestamp` field but the
+    docs do not instruct the consumer to check it.
+- id: rfc8594-sunset
+  conforms: false
+  evidence: >-
+    A deprecation policy is published in prose but no Sunset or Deprecation response header is
+    documented. See lifecycle/jodo-lifecycle.yml.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: >-
+    No Jodo-owned security.txt on any host. The only one reachable under a jodo.in name is
+    Atlassian's, served by the status-page vendor. See well-known/jodo-well-known.yml.
+- id: webhooks-openapi
+  conforms: false
+  evidence: >-
+    Jodo documents 36 webhook events in prose but publishes neither an AsyncAPI document nor an
+    OpenAPI `webhooks` block.
+domain_standards:
+  market: Indian education fee collection, recurring payment mandates, and consumer/education lending
+  regime: financial-services (India)
+  declared_in_contract: false
+  assessment: >-
+    REWARD-ONLY dimension, and Jodo earns nothing here — not because its market lacks standards, but
+    because its contract does not surface them. The rails are named only in marketing copy and
+    partner pages, never in the API.
+  candidates_probed:
+  - standard: NPCI UPI / UPI Autopay
+    declared_in_contract: false
+    external_evidence: >-
+      The docs site banner promotes 'Collect for MSMEs: UPI Autopay, eNACH & reminders', and the blog
+      carries 'Jodo launches UPI Autopay' (2024-07-22, https://www.jodo.in/blog/). The Android
+      platform guide instructs integrators to handle `upi://` deep links via Android intents
+      (https://docs.jodo.in/platforms/android/) — the clearest in-contract trace of UPI, and it is in
+      a WebView recipe rather than a payload.
+    contract_gap: >-
+      No UPI object, VPA field, UPI transaction reference or Autopay mandate schema appears in any
+      request, response or webhook payload. `mode` on a payment is a free-form string the docs never
+      enumerates.
+  - standard: NPCI NACH / eNACH (e-mandate)
+    declared_in_contract: false
+    external_evidence: >-
+      Flex is explicitly mandate-backed: 'Mandate: The bank authorisation that allows scheduled
+      auto-debits' (https://docs.jodo.in/flex/overview/), with flex.mandate.cancelled and
+      flex.mandate.expired events, E-sign mandate setup referenced on flex.subscription.active, and
+      'eNACH' named in the docs banner.
+    contract_gap: >-
+      The mandate is modelled only as a lifecycle state. No UMRN (Unique Mandate Reference Number),
+      no mandate ID, no sponsor/destination bank, no mandate amount cap or validity dates, and no
+      NACH return/bounce reason code on flex.instalment.bounced — the one event where an integrator
+      most needs the reason. Reconciling a bounce against a bank statement is not possible from the
+      published payload.
+  - standard: RBI Digital Lending Guidelines (DLG)
+    declared_in_contract: false
+    external_evidence: >-
+      https://www.jodo.in/lending-partners/ publishes a 'DLG Disclosure - as on 01.03.2026' document
+      and names seven regulated lending partners (Avanse Financial Services, LiquiLoans, Lendbox,
+      Eduvanz, Vivriti Capital, Fibe/EarlySalary, Ratnaafin) with Grievance Redressal Officer
+      contacts, alongside https://www.jodo.in/grievance-redressal/ and a Trust Vault at
+      https://compliance.jodo.in/.
+    contract_gap: >-
+      The Cred API surface carries no lender identity, no Key Fact Statement reference, no APR or
+      interest-rate field, and no cooling-off/look-up period — none of the borrower-facing
+      disclosures the guidelines centre on. cred.loan.disbursed reports amount and date only. The
+      compliance posture is real but lives entirely outside the contract.
+  - standard: ISO 20022
+    declared_in_contract: false
+    note: No ISO 20022 message types appear. Settlement is reported as a bare `settlement_utr` string.
+  - standard: OneRoster / Ed-Fi / LTI / SIF (education data interoperability)
+    declared_in_contract: false
+    note: >-
+      Jodo integrates with institute ERP and student information systems and models students, grades,
+      branches and academic years — the exact entities OneRoster and Ed-Fi standardise — but uses a
+      wholly proprietary shape. Grade and fee-component codes are 'as shared between Jodo and the ERP
+      provider', i.e. bilaterally negotiated per integration. Every ERP connector is bespoke; this is
+      precisely the cost the domain-standard dimension measures.
+compliance_certifications:
+  published: false
+  trust_center:
+    url: https://compliance.jodo.in/
+    title: Trust Vault
+    http_status: 200
+    readable: false
+    note: >-
+      A Next.js single-page application that renders its contents client-side; the server response
+      contains no certification names, no policy text and no document list. No SOC 2, ISO 27001,
+      PCI DSS, HIPAA or FedRAMP claim could be read from the public HTML on 2026-08-23. Because no
+      certification is machine-readable, NO `Compliance` pointer is emitted in apis.yml — only
+      `TrustCenter`, which records that the surface exists.
+  pci_dss:
+    claimed_in_docs: false
+    note: >-
+      Jodo handles card, UPI and net-banking payment flows but makes no PCI DSS statement in the
+      developer documentation. The hosted-checkout architecture (payer is redirected to a Jodo-hosted
+      page; the integrator never touches card data) is the standard way to reduce PCI scope, and the
+      platform guides describe exactly that pattern — but the docs never say so, so an integrator
+      cannot cite a scope-reduction rationale from Jodo's own material.

@@ -1,0 +1,254 @@
+generated: '2026-08-23'
+method: derived
+source: openapi/jodo-integrations-openapi.yml
+docs: https://docs.jodo.in/getting-started/introduction/
+summary: >-
+  Jodo's model is a two-level ownership chain — a User owns Students, a Student owns fee structure,
+  payments and product enrolments — with three product overlays (Flex, Pay, Cred) hanging off the
+  Student, plus an institute-level configuration namespace (branches, grades, fee components,
+  discounts) that supplies the codes every other payload references. Pay is the one product that can
+  operate WITHOUT a Student, via standalone checkout Orders and Payment Links.
+core_concepts_quote: >-
+  'Students represent learners and their fee context. Student APIs are shared by Flex, Pay, and Cred.
+  Users represent ERP or institute users who need access tokens for specific Jodo experiences.
+  Products such as Flex, Pay, and Cred define the payment or financing workflow.'
+  (https://docs.jodo.in/getting-started/introduction/)
+identifiers:
+- name: registration_id
+  entity: User
+  type: string
+  example_shape: user_1234
+  issued_by: Jodo (Register User)
+  note: Path key for creating students and minting access tokens.
+- name: jodo_student_id
+  entity: Student
+  type: string (integer-valued in some webhook payloads)
+  issued_by: Jodo
+  note: >-
+    Path key for every student-scoped operation. Typed as String in most webhook payload tables but
+    as Integer on cred.loan.disbursed — an inconsistency in Jodo's own documentation, and one an
+    integrator's parser must tolerate.
+- name: order_id
+  entity: Order / PaymentLink
+  type: string
+  example_shape: order_123456789
+  issued_by: Jodo
+  note: Shared key space — the same order_id path parameter serves both /pay/orders and /pay/payment_links.
+- name: transaction_id
+  entity: Payment
+  type: string
+  example_shape: trans_568aaf1f9a65
+  issued_by: >-
+    Jodo for collected payments; the INTEGRATOR for manual/direct payments (supplied on Add Payment
+    and reused as the path key to cancel it).
+- name: webhook_id
+  entity: WebhookSubscription
+  type: string (UUID)
+  example_shape: 21d8f41b-aefd-4463-8179-55144f5f1ea5
+  issued_by: Jodo
+- name: event_id
+  entity: WebhookEvent
+  type: string (UUID)
+  issued_by: Jodo
+  note: The deduplication key for at-least-once delivery.
+- name: collector_code
+  entity: Branch
+  type: string
+  issued_by: Jodo
+  note: >-
+    Institute/branch code. Required on configuration reads and webhook registration when the
+    institute has more than one branch; appears inside every webhook student payload.
+- name: identifier / custom_identifier
+  entity: Student
+  type: string
+  issued_by: the institute
+  note: The integrator's own enrolment number, carried through so webhooks reconcile to the ERP.
+- name: settlement_utr
+  entity: Settlement
+  type: string
+  issued_by: banking rail
+  note: Unique Transaction Reference for a settlement to the institute.
+entities:
+- name: User
+  description: An ERP or institute user who can be redirected into a Jodo-hosted flow.
+  key: registration_id
+  operations: [registerUser, getAccessToken]
+  relationships:
+  - has_many: Student
+    via: registration_id
+- name: Student
+  description: A learner and their fee context. The hub entity — shared by Flex, Pay and Cred.
+  key: jodo_student_id
+  operations: [registerStudent, getStudent, updateStudent, updateStudentFee, listStudentProducts, listStudentPayments, addStudentPayment, cancelStudentPayment]
+  relationships:
+  - belongs_to: User
+    via: registration_id
+  - has_many: FeeComponent
+    via: fee_components
+  - has_many: Payment
+    via: jodo_student_id
+  - has_many: Product
+    via: jodo_student_id
+  - has_one: FlexSchedule
+    via: jodo_student_id
+  - has_one: Grade
+    via: grade
+  - has_one: Branch
+    via: collector_code
+- name: FeeComponent
+  description: A named, coded slice of a student's fee (TUITION_FEE, TRANSPORT_FEE, ...).
+  key: component_type
+  relationships:
+  - belongs_to: Student
+  - has_many: Discount
+    via: discounts
+  - referenced_by: Payment
+    via: fee_components[].component_type
+  - referenced_by: ScheduleInstalment
+    via: details[].component_type
+  note: >-
+    component_type is a CODE, not free text — 'as shared between Jodo and the ERP provider', and
+    enumerable at runtime via listFeeComponents. It is the join key between the fee structure, every
+    payment allocation and every instalment line.
+- name: Discount
+  description: A reduction applied to a fee component.
+  key: discount_type
+  relationships:
+  - belongs_to: FeeComponent
+  enumerable_via: listDiscounts
+- name: Payment
+  description: A payment recorded against a student, whether collected by Jodo or recorded manually by the ERP.
+  key: transaction_id
+  relationships:
+  - belongs_to: Student
+  - has_many: PaymentAllocation
+    via: fee_components / details
+  - has_one: Settlement
+    via: settlement_utr
+- name: Product
+  description: A product enrolment on a student. product_type is one of flex, pay, cred.
+  key: id
+  relationships:
+  - belongs_to: Student
+  operations: [listStudentProducts]
+- name: FlexSchedule
+  description: The instalment schedule configured for a student under Flex.
+  relationships:
+  - belongs_to: Student
+  - has_many: ScheduleInstalment
+    via: payment_schedule
+  operations: [manageFlexPlan, getFlexSchedule]
+- name: ScheduleInstalment
+  description: One dated instalment in a Flex schedule, split by fee component; may be flagged as a downpayment.
+  relationships:
+  - belongs_to: FlexSchedule
+  - has_many: PaymentAllocation
+    via: details
+- name: Subscription
+  description: >-
+    The Flex plan created after the payer completes setup and authorises debits. Appears only in
+    webhook payloads — there is no REST operation that reads or writes a Subscription directly.
+  key: subscription.id
+  relationships:
+  - belongs_to: Student
+  - has_one: Mandate
+  event_only: true
+- name: Mandate
+  description: >-
+    The bank authorisation permitting scheduled auto-debits. Named as a core concept and tracked
+    through flex.mandate.cancelled / flex.mandate.expired, but it has NO schema and NO identifier
+    anywhere in the published contract.
+  relationships:
+  - belongs_to: Subscription
+  event_only: true
+  gap: >-
+    No mandate ID, UMRN, bank, amount cap or validity window is exposed. An integrator cannot
+    reference a specific mandate.
+- name: Order
+  description: >-
+    An ad-hoc checkout collection that does NOT require a student record. Returns a hosted
+    redirect_url.
+  key: order_id
+  operations: [createPayOrder, getPayOrder]
+  relationships:
+  - has_many: OrderLineItem
+    via: details
+  - has_many: Note
+    via: notes
+  statuses: [paid, unpaid]
+- name: PaymentLink
+  description: A shareable hosted payment URL, optionally expiring. Shares the Order key space and shape.
+  key: order_id
+  operations: [createPaymentLink, getPaymentLink, cancelPaymentLink]
+  relationships:
+  - has_many: OrderLineItem
+    via: details
+  - has_many: Note
+    via: notes
+  statuses: [paid, unpaid, expired, cancelled]
+- name: LoanApplication
+  description: >-
+    A Cred education loan application. Like Subscription and Mandate, it is EVENT-ONLY — nine webhook
+    events track its lifecycle and no REST operation reads or writes it.
+  key: application.id
+  relationships:
+  - belongs_to: Student
+  - has_many: Disbursement
+  event_only: true
+  lifecycle: [application_started, application_filled, agreement_signed, final_approved, rejected, canceled, application_expired, disbursed]
+- name: Disbursement
+  description: A tranche paid out against an approved loan.
+  key: disbursement.id
+  relationships:
+  - belongs_to: LoanApplication
+  event_only: true
+- name: Branch
+  description: An institute branch, identified by collector_code.
+  key: collector_code
+  operations: [listBranches]
+  relationships:
+  - has_many: Student
+- name: Grade
+  description: A class/grade, carrying a code and a display name.
+  key: grade code
+  operations: [listGrades]
+  relationships:
+  - has_many: Student
+- name: WebhookSubscription
+  description: A registration binding one event_code to exactly one destination URL, with optional signing secret and custom header.
+  key: webhook_id
+  operations: [addWebhook, listWebhooks, getWebhook, disableWebhook]
+  relationships:
+  - belongs_to: Branch
+    via: collector_code
+- name: WebhookEvent
+  description: A delivered event envelope. 36 event types across five families.
+  key: event_id
+  relationships:
+  - references: Student
+  - references: Payment
+  - references: Subscription
+  - references: LoanApplication
+  detail: asyncapi/jodo-webhooks-asyncapi.yml
+observations:
+- >-
+  THE MODEL IS EVENT-HEAVY AND READ-LIGHT. Four of the most commercially significant entities —
+  Subscription, Mandate, LoanApplication and Disbursement — exist ONLY in webhook payloads. There is
+  no GET for any of them. An integrator that misses or drops a webhook has no documented way to
+  re-read the current state of a Flex subscription or a Cred loan; the only reconciliation reads
+  available are getStudent, listStudentPayments, listStudentProducts and getFlexSchedule. For a
+  surface whose delivery model is explicitly at-least-once-with-eventual-give-up (subscriptions
+  auto-disable after 100 consecutive failures), the absence of a read-back path is the sharpest gap
+  in the model.
+- >-
+  Pay is deliberately student-optional. Orders and Payment Links duplicate the student demographic
+  fields (student_name, grade, identifier, academic_year_*) as flat optional attributes rather than
+  referencing a Student, so the same person can exist twice with no linkage between the records.
+- >-
+  Configuration codes are bilaterally negotiated, not standardised: grade, component_type and
+  discount_type are all described as 'shared between Jodo and the ERP provider'. The four
+  configuration list operations exist precisely so an integrator can discover the codes agreed for
+  their institute — they are the model's late-binding mechanism.
+- >-
+  Notes ({key, value} pairs) are the documented reconciliation channel back to the ERP, and they
+  round-trip through Order and PaymentLink webhook payloads.
