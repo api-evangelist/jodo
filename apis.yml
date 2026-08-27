@@ -33,39 +33,6 @@ tags:
 - ERP Integration
 - Financial Services
 apis:
-- name: Jodo ERP Integrations API
-  description: >-
-    REST API for connecting an institute's ERP, finance or student-information system to Jodo fee
-    collection. Covers user registration and hosted-flow access tokens, student master data and fee
-    structures, manual/direct payment reconciliation, Flex instalment plans, Pay checkout orders and
-    shareable payment links, institute reference data, and webhook subscription management. Basic Auth;
-    JSON request and response bodies; documented UAT and production hosts.
-  humanURL: https://docs.jodo.in/
-  baseURL: https://ext.jodo.in
-  tags:
-  - Payments
-  - Education
-  - Fee Collection
-  - ERP Integration
-  properties:
-  - type: OpenAPI
-    url: openapi/jodo-integrations-openapi.yml
-  - type: Overlay
-    url: overlays/jodo-integrations-overlay.yaml
-  - type: Documentation
-    url: https://docs.jodo.in/
-  - type: APIReference
-    url: https://docs.jodo.in/getting-started/api-structure/
-  - type: GettingStarted
-    url: https://docs.jodo.in/getting-started/introduction/
-  - type: Authentication
-    url: authentication/jodo-authentication.yml
-  - type: ErrorCatalog
-    url: errors/jodo-error-codes.yml
-  - type: DataModel
-    url: data-model/jodo-data-model.yml
-  - type: Conventions
-    url: conventions/jodo-conventions.yml
 - name: Jodo Webhooks
   description: >-
     Event delivery surface for the Jodo platform. Jodo POSTs 36 documented events across student master
@@ -86,12 +53,135 @@ apis:
     url: asyncapi/jodo-webhooks-asyncapi.yml
   - type: Documentation
     url: https://docs.jodo.in/webhooks/handling-webhook-events/
+- aid: jodo:jodo-configuration-api
+  name: Jodo Configuration API
+  description: >-
+    Institute reference data (branches, grades, fee components, discounts) and webhook subscriptions.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
+- aid: jodo:jodo-flex-api
+  name: Jodo Flex API
+  description: Flexible instalment plans backed by an auto-debit mandate.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Flex
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-flex-api-openapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
+- aid: jodo:jodo-pay-api
+  name: Jodo Pay API
+  description: Checkout orders and shareable hosted payment links.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Pay
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-pay-api-openapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
+- aid: jodo:jodo-students-api
+  name: Jodo Students API
+  description: Student master data, fee structures and manual payment reconciliation.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Students
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-students-api-openapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
+- aid: jodo:jodo-users-api
+  name: Jodo Users API
+  description: Register ERP/institute users and mint short-lived tokens for Jodo-hosted flows.
+  humanURL: https://docs.jodo.in/
+  baseURL: https://ext.jodo.in
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/jodo-users-api-openapi.yml
+  - type: Documentation
+    url: https://docs.jodo.in/
+  - type: APIReference
+    url: https://docs.jodo.in/getting-started/api-structure/
+  - type: GettingStarted
+    url: https://docs.jodo.in/getting-started/introduction/
+  - type: Authentication
+    url: authentication/jodo-authentication.yml
+  - type: ErrorCatalog
+    url: errors/jodo-error-codes.yml
+  - type: DataModel
+    url: data-model/jodo-data-model.yml
+  - type: Conventions
+    url: conventions/jodo-conventions.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/jodo-integrations-overlay.yaml
 - type: Website
   url: https://www.jodo.in/
 - type: DeveloperPortal
