@@ -1,0 +1,189 @@
+openapi: 3.2.0
+info:
+  title: Jodo ERP Integrations Users API
+  version: v1
+  summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
+  description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
+
+    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
+
+    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
+
+    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
+
+
+    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
+
+    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
+
+    documented operation per reference page. Every path, method, path/query parameter, request-body
+
+    field, response field and error code below is transcribed from the corresponding docs page named
+
+    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
+
+    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
+
+    '
+  contact:
+    name: Jodo
+    url: https://docs.jodo.in/
+  x-provenance:
+    method: generated
+    generated_by: API Evangelist enrichment pipeline
+    generated: '2026-08-23'
+    source_docs: https://docs.jodo.in/
+    note: Endpoint paths, methods, parameters, request/response fields and error codes are grounded in docs.jodo.in as fetched 2026-08-23 (all reference pages HTTP 200). This is a third-party rendering of Jodo's published reference, not a Jodo-published artifact. Reconcile against the live API reference before relying on it.
+servers:
+- url: https://ext.jodo.in
+  description: Production API host. Jodo documents this as base_url on https://docs.jodo.in/getting-started/environments/. https://api.jodo.in is documented as jodo_auth_host and issues an HTTP 301 to https://ext.jodo.in.
+- url: https://ext.devtest1.jodopay.com
+  description: UAT / sandbox API host, documented on https://docs.jodo.in/getting-started/environments/. jodopay.com is Jodo's own non-production domain (the company also operates @Jodopay social handles).
+security:
+- basicAuth: []
+tags:
+- name: Users
+  description: Register ERP/institute users and mint short-lived tokens for Jodo-hosted flows.
+paths:
+  /api/v1/integrations/erp/users/register:
+    post:
+      operationId: registerUser
+      summary: Register User
+      description: Register a user uniquely identified by phone number and email. Used for seamless login and redirection into Jodo-hosted flows.
+      tags:
+      - Users
+      x-source: https://docs.jodo.in/user/api/register-user/
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '200':
+          description: User registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterUserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/erp/users/{registration_id}/access_token:
+    get:
+      operationId: getAccessToken
+      summary: Get Access Token
+      description: Generate a short-lived access token for a registered user so your application can redirect them into Jodo-hosted flows.
+      tags:
+      - Users
+      x-source: https://docs.jodo.in/user/api/get-access-token/
+      parameters:
+      - $ref: '#/components/parameters/RegistrationId'
+      responses:
+        '200':
+          description: Access token issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessTokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    AccessTokenResponse:
+      type: object
+      description: The access_token is used in the Jodo login redirect https://[base_url]/consumer/login-redirect?access_token=<access_token>, optionally with jodo_student_id, product_type (flex|pay|cred), callback_url and create_application.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+              description: Access token used for the Jodo redirect.
+            expires_at:
+              type: string
+              format: date-time
+              description: Expiry time for the token.
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    RegisterUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            registration_id:
+              type: string
+              description: Unique registration ID generated for the user.
+    RegisterUserRequest:
+      type: object
+      required:
+      - name
+      - phone
+      - email
+      properties:
+        name:
+          type: string
+          description: Full name of the user.
+        phone:
+          type: string
+          description: 10-digit phone number.
+        email:
+          type: string
+          format: email
+          description: Email address.
+  parameters:
+    RegistrationId:
+      name: registration_id
+      in: path
+      required: true
+      description: Unique registration ID for the user, returned by Register User.
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: All Jodo APIs are authenticated using HTTP Basic Auth. Jodo shares separate API keys and secrets for the UAT and production environments. Documented at https://docs.jodo.in/getting-started/authentication/ — keys and secrets must never be exposed in browsers, mobile apps or client-side code.

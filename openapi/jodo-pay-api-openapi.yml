@@ -1,0 +1,403 @@
+openapi: 3.2.0
+info:
+  title: Jodo ERP Integrations Pay API
+  version: v1
+  summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
+  description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
+
+    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
+
+    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
+
+    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
+
+
+    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
+
+    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
+
+    documented operation per reference page. Every path, method, path/query parameter, request-body
+
+    field, response field and error code below is transcribed from the corresponding docs page named
+
+    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
+
+    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
+
+    '
+  contact:
+    name: Jodo
+    url: https://docs.jodo.in/
+  x-provenance:
+    method: generated
+    generated_by: API Evangelist enrichment pipeline
+    generated: '2026-08-23'
+    source_docs: https://docs.jodo.in/
+    note: Endpoint paths, methods, parameters, request/response fields and error codes are grounded in docs.jodo.in as fetched 2026-08-23 (all reference pages HTTP 200). This is a third-party rendering of Jodo's published reference, not a Jodo-published artifact. Reconcile against the live API reference before relying on it.
+servers:
+- url: https://ext.jodo.in
+  description: Production API host. Jodo documents this as base_url on https://docs.jodo.in/getting-started/environments/. https://api.jodo.in is documented as jodo_auth_host and issues an HTTP 301 to https://ext.jodo.in.
+- url: https://ext.devtest1.jodopay.com
+  description: UAT / sandbox API host, documented on https://docs.jodo.in/getting-started/environments/. jodopay.com is Jodo's own non-production domain (the company also operates @Jodopay social handles).
+security:
+- basicAuth: []
+tags:
+- name: Pay
+  description: Checkout orders and shareable hosted payment links.
+paths:
+  /api/v1/integrations/pay/orders:
+    post:
+      operationId: createPayOrder
+      summary: Create Pay Order
+      description: Create a Pay Order to collect an unstructured payment without requiring an existing student record. Returns an order_id and a hosted redirect_url.
+      tags:
+      - Pay
+      x-source: https://docs.jodo.in/pay/api/create-order/
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePayOrderRequest'
+      responses:
+        '200':
+          description: Pay Order created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/pay/orders/{order_id}:
+    get:
+      operationId: getPayOrder
+      summary: Get Pay Order
+      description: Retrieve the current state of a Pay Order after checkout, callback, or webhook processing.
+      tags:
+      - Pay
+      x-source: https://docs.jodo.in/pay/api/get-order/
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Pay Order state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/integrations/pay/payment_links:
+    post:
+      operationId: createPaymentLink
+      summary: Create Payment Link
+      description: Create a payment link when the payer should complete payment from a shareable hosted URL instead of an immediate checkout redirect.
+      tags:
+      - Pay
+      x-source: https://docs.jodo.in/pay/api/create-payment-link/
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentLinkRequest'
+      responses:
+        '201':
+          description: Payment link created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreatedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/v1/integrations/pay/payment_links/{order_id}:
+    get:
+      operationId: getPaymentLink
+      summary: Get Payment Link
+      description: Fetch the current state of a payment link using the order_id returned when the link was created.
+      tags:
+      - Pay
+      x-source: https://docs.jodo.in/pay/api/get-payment-link/
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Payment link state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentLinkResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      operationId: cancelPaymentLink
+      summary: Cancel Payment Link
+      description: Cancel a payment link when the payer should no longer be able to complete payment using the hosted URL.
+      tags:
+      - Pay
+      x-source: https://docs.jodo.in/pay/api/cancel-payment-link/
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Payment link cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Note:
+      type: object
+      properties:
+        key:
+          type: string
+          examples:
+          - erp_reference_id
+        value:
+          type: string
+          examples:
+          - REF123
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    MessageResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        message:
+          type: string
+          examples:
+          - Payment link cancelled successfully!
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Order ID.
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+        identifier:
+          type: string
+        student_name:
+          type: string
+        grade:
+          type: string
+        stream:
+          type: string
+          description: Student stream name.
+        academic_year_start:
+          type: integer
+        academic_year_end:
+          type: integer
+        new_admission:
+          type: boolean
+        date_of_birth:
+          type: string
+        custom_identifier:
+          type: string
+        transaction_id:
+          type: string
+          description: Transaction ID for the payment.
+        paid_at:
+          type: string
+          format: date-time
+          description: Time when payment was completed.
+        status:
+          type: string
+          description: 'Current status. Pay Orders: paid, unpaid. Payment links: paid, unpaid, expired, cancelled.'
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineItem'
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+    PayOrderBase:
+      type: object
+      required:
+      - name
+      - phone
+      - email
+      - details
+      properties:
+        name:
+          type: string
+          description: Name of the payer.
+        phone:
+          type: string
+          description: Phone number of the payer.
+        email:
+          type: string
+          format: email
+          description: Email address of the payer.
+        student_name:
+          type: string
+          description: Student name
+          if relevant. Does not require an existing Jodo student record.: null
+        grade:
+          type: string
+          description: Grade identifier shared between Jodo and the ERP provider.
+        date_of_birth:
+          type: string
+        identifier:
+          type: string
+          description: Student identifier assigned by the institute
+          if available.: null
+        new_admission:
+          type: boolean
+        custom_identifier:
+          type: string
+        academic_year_start:
+          type: integer
+        academic_year_end:
+          type: integer
+        details:
+          type: array
+          description: Payment line items.
+          items:
+            $ref: '#/components/schemas/OrderLineItem'
+        notes:
+          type: array
+          description: Key-value metadata, for example ERP reference IDs.
+          items:
+            $ref: '#/components/schemas/Note'
+    PaymentLinkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          allOf:
+          - $ref: '#/components/schemas/Order'
+          - type: object
+            properties:
+              expires_at:
+                type: string
+                format: date-time
+                description: Payment link expiry date and time.
+    CreatePaymentLinkRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          expires_at:
+            type: string
+            format: date-time
+            description: Optional expiry date and time in ISO 8601 format.
+    OrderCreatedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            order_id:
+              type: string
+              description: Unique Jodo Pay Order identifier.
+            redirect_url:
+              type: string
+              format: uri
+              description: Hosted Jodo checkout URL for the payer.
+    OrderResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          $ref: '#/components/schemas/Order'
+    CreatePayOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          callback_url:
+            type: string
+            format: uri
+            description: URL used to redirect the payer after checkout.
+    OrderLineItem:
+      type: object
+      required:
+      - component_type
+      - amount
+      properties:
+        component_type:
+          type: string
+          description: Payment detail type, such as Event Fee or Payable Amount.
+        amount:
+          type: number
+          description: Amount to be collected for the line item.
+        settlement_utr:
+          type: string
+          description: Settlement UTR
+          if settled.: null
+        settled_at:
+          type: string
+          format: date-time
+          description: Settlement time
+          if settled.: null
+  responses:
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      description: Jodo Pay Order identifier returned by Create Pay Order or Create Payment Link.
+      schema:
+        type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: All Jodo APIs are authenticated using HTTP Basic Auth. Jodo shares separate API keys and secrets for the UAT and production environments. Documented at https://docs.jodo.in/getting-started/authentication/ — keys and secrets must never be exposed in browsers, mobile apps or client-side code.

@@ -1,0 +1,187 @@
+openapi: 3.2.0
+info:
+  title: Jodo ERP Integrations Flex API
+  version: v1
+  summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
+  description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
+
+    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
+
+    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
+
+    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
+
+
+    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
+
+    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
+
+    documented operation per reference page. Every path, method, path/query parameter, request-body
+
+    field, response field and error code below is transcribed from the corresponding docs page named
+
+    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
+
+    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
+
+    '
+  contact:
+    name: Jodo
+    url: https://docs.jodo.in/
+  x-provenance:
+    method: generated
+    generated_by: API Evangelist enrichment pipeline
+    generated: '2026-08-23'
+    source_docs: https://docs.jodo.in/
+    note: Endpoint paths, methods, parameters, request/response fields and error codes are grounded in docs.jodo.in as fetched 2026-08-23 (all reference pages HTTP 200). This is a third-party rendering of Jodo's published reference, not a Jodo-published artifact. Reconcile against the live API reference before relying on it.
+servers:
+- url: https://ext.jodo.in
+  description: Production API host. Jodo documents this as base_url on https://docs.jodo.in/getting-started/environments/. https://api.jodo.in is documented as jodo_auth_host and issues an HTTP 301 to https://ext.jodo.in.
+- url: https://ext.devtest1.jodopay.com
+  description: UAT / sandbox API host, documented on https://docs.jodo.in/getting-started/environments/. jodopay.com is Jodo's own non-production domain (the company also operates @Jodopay social handles).
+security:
+- basicAuth: []
+tags:
+- name: Flex
+  description: Flexible instalment plans backed by an auto-debit mandate.
+paths:
+  /api/v1/integrations/flex/students/{jodo_student_id}/plans:
+    get:
+      operationId: getFlexSchedule
+      summary: Get Flex Schedule
+      description: Fetch the Flex payment schedule configured for a student.
+      tags:
+      - Flex
+      x-source: https://docs.jodo.in/flex/api/get-flex-schedule/
+      parameters:
+      - $ref: '#/components/parameters/JodoStudentId'
+      responses:
+        '200':
+          description: Flex schedule for the student.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlexScheduleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      operationId: manageFlexPlan
+      summary: Manage Flex Plan
+      description: Configure the instalment schedule for a student identified by jodo_student_id.
+      tags:
+      - Flex
+      x-source: https://docs.jodo.in/flex/api/manage-flex-plan/
+      parameters:
+      - $ref: '#/components/parameters/JodoStudentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManageFlexPlanRequest'
+      responses:
+        '200':
+          description: Flex plan configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOnlyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+    FlexScheduleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          description: Flex payment schedule configured for the student.
+    ManageFlexPlanRequest:
+      type: object
+      required:
+      - payment_schedule
+      properties:
+        payment_schedule:
+          type: array
+          description: Instalments to configure for the student.
+          items:
+            type: object
+            required:
+            - due_date
+            - details
+            properties:
+              due_date:
+                type: string
+                description: Instalment due date in YYYY-MM-DD format.
+              details:
+                type: array
+                description: Fee component split for the instalment.
+                items:
+                  type: object
+                  required:
+                  - component_type
+                  - amount
+                  properties:
+                    component_type:
+                      type: string
+                      description: Fee component code.
+                    amount:
+                      type: number
+                      description: Amount for the fee component.
+                    is_downpayment:
+                      type: boolean
+                      description: Set to true when the component is part of a downpayment instalment.
+  parameters:
+    JodoStudentId:
+      name: jodo_student_id
+      in: path
+      required: true
+      description: Jodo student ID.
+      schema:
+        type: string
+  responses:
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: All Jodo APIs are authenticated using HTTP Basic Auth. Jodo shares separate API keys and secrets for the UAT and production environments. Documented at https://docs.jodo.in/getting-started/authentication/ — keys and secrets must never be exposed in browsers, mobile apps or client-side code.

@@ -1,0 +1,327 @@
+openapi: 3.2.0
+info:
+  title: Jodo ERP Integrations Configuration API
+  version: v1
+  summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
+  description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
+
+    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
+
+    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
+
+    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
+
+
+    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
+
+    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
+
+    documented operation per reference page. Every path, method, path/query parameter, request-body
+
+    field, response field and error code below is transcribed from the corresponding docs page named
+
+    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
+
+    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
+
+    '
+  contact:
+    name: Jodo
+    url: https://docs.jodo.in/
+  x-provenance:
+    method: generated
+    generated_by: API Evangelist enrichment pipeline
+    generated: '2026-08-23'
+    source_docs: https://docs.jodo.in/
+    note: Endpoint paths, methods, parameters, request/response fields and error codes are grounded in docs.jodo.in as fetched 2026-08-23 (all reference pages HTTP 200). This is a third-party rendering of Jodo's published reference, not a Jodo-published artifact. Reconcile against the live API reference before relying on it.
+servers:
+- url: https://ext.jodo.in
+  description: Production API host. Jodo documents this as base_url on https://docs.jodo.in/getting-started/environments/. https://api.jodo.in is documented as jodo_auth_host and issues an HTTP 301 to https://ext.jodo.in.
+- url: https://ext.devtest1.jodopay.com
+  description: UAT / sandbox API host, documented on https://docs.jodo.in/getting-started/environments/. jodopay.com is Jodo's own non-production domain (the company also operates @Jodopay social handles).
+security:
+- basicAuth: []
+tags:
+- name: Configuration
+  description: Institute reference data (branches, grades, fee components, discounts) and webhook subscriptions.
+paths:
+  /api/v1/integrations/erp/branches:
+    get:
+      operationId: listBranches
+      summary: List Branches
+      description: Fetch branch names and collector codes configured for the institute.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/list-branches/
+      responses:
+        '200':
+          description: Branches configured for the institute.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/erp/grades:
+    get:
+      operationId: listGrades
+      summary: List Grades
+      description: Fetch grade codes used in student registration and update payloads.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/list-grades/
+      parameters:
+      - $ref: '#/components/parameters/CollectorCode'
+      responses:
+        '200':
+          description: Grade codes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/erp/fee-components:
+    get:
+      operationId: listFeeComponents
+      summary: List Fee Components
+      description: Fetch fee component codes used in student fee and payment payloads.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/list-fee-components/
+      parameters:
+      - $ref: '#/components/parameters/CollectorCode'
+      responses:
+        '200':
+          description: Fee component codes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/erp/discounts:
+    get:
+      operationId: listDiscounts
+      summary: List Discounts
+      description: Fetch discount codes supported for student fee configuration.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/list-discounts/
+      parameters:
+      - $ref: '#/components/parameters/CollectorCode'
+      responses:
+        '200':
+          description: Discount codes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/integrations/erp/webhooks:
+    get:
+      operationId: listWebhooks
+      summary: List Webhooks
+      description: Fetch webhook subscriptions configured for the institute.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/list-webhooks/
+      responses:
+        '200':
+          description: Webhook subscriptions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      operationId: addWebhook
+      summary: Add Webhook
+      description: 'Add or update the webhook destination for a specific event code. A webhook event can be
+
+        subscribed to only one URL; calling this API again for the same event_code updates the
+
+        existing subscription. After creation only secret_key, header_key and header_value can be updated.
+
+        '
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/add-webhook/
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddWebhookRequest'
+      responses:
+        '201':
+          description: Webhook subscription created or updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/v1/integrations/erp/webhooks/{webhook_id}:
+    get:
+      operationId: getWebhook
+      summary: Get Webhook
+      description: Fetch details for a webhook subscription identified by webhook_id.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/get-webhook/
+      parameters:
+      - $ref: '#/components/parameters/WebhookId'
+      responses:
+        '200':
+          description: Webhook subscription detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      operationId: disableWebhook
+      summary: Disable Webhook
+      description: Disable a webhook subscription identified by webhook_id.
+      tags:
+      - Configuration
+      x-source: https://docs.jodo.in/configuration/api/disable-webhook/
+      parameters:
+      - $ref: '#/components/parameters/WebhookId'
+      responses:
+        '200':
+          description: Webhook subscription disabled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusOnlyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+components:
+  parameters:
+    CollectorCode:
+      name: collector_code
+      in: query
+      required: false
+      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
+      schema:
+        type: string
+    WebhookId:
+      name: webhook_id
+      in: path
+      required: true
+      description: Webhook subscription ID.
+      schema:
+        type: string
+  schemas:
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    WebhookResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Webhook subscription ID.
+            event_code:
+              type: string
+            failure_notification_email:
+              type: string
+            url:
+              type: string
+              format: uri
+    AddWebhookRequest:
+      type: object
+      required:
+      - event_code
+      - url
+      - failure_notification_email
+      properties:
+        collector_code:
+          type: string
+          description: Branch code. Required if the institute has more than one branch.
+        event_code:
+          type: string
+          description: Webhook event code, e.g. cred.loan.final_approved.
+        url:
+          type: string
+          format: uri
+          description: Destination URL where Jodo sends POST requests when the event is triggered.
+        failure_notification_email:
+          type: string
+          description: Comma-separated email list for failure notifications.
+        secret_key:
+          type: string
+          description: Secret key used to generate the X-Jodo-Signature HMAC SHA-256 signature.
+        header_key:
+          type: string
+          description: Custom header key sent with webhook requests.
+        header_value:
+          type: string
+          description: Custom header value sent with webhook requests.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+    GenericListResponse:
+      type: object
+      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
+  responses:
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: All Jodo APIs are authenticated using HTTP Basic Auth. Jodo shares separate API keys and secrets for the UAT and production environments. Documented at https://docs.jodo.in/getting-started/authentication/ — keys and secrets must never be exposed in browsers, mobile apps or client-side code.
