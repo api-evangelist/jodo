@@ -41,6 +41,17 @@ tags:
 - Fee Collection
 - Lending
 - India
+- Webhook
+- ERP Integration
+- Financial-Services
+tags_raw:
+- Company
+- Payments
+- Education
+- Fintech
+- Fee Collection
+- Lending
+- India
 - Webhooks
 - ERP Integration
 - Financial Services
@@ -55,6 +66,10 @@ apis:
   humanURL: https://docs.jodo.in/webhooks/handling-webhook-events/
   baseURL: https://ext.jodo.in
   tags:
+  - Webhook
+  - Event
+  - Payments
+  tags_raw:
   - Webhooks
   - Events
   - Payments
@@ -168,6 +183,8 @@ apis:
   humanURL: https://docs.jodo.in/
   baseURL: https://ext.jodo.in
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
