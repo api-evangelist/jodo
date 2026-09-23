@@ -5,26 +5,7 @@ info:
   summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
   description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
 
-    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
-
-    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
-
-    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
-
-
-    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
-
-    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
-
-    documented operation per reference page. Every path, method, path/query parameter, request-body
-
-    field, response field and error code below is transcribed from the corresponding docs page named
-
-    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
-
-    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
-
-    '
+    connect to Jodo fee collection.'
   contact:
     name: Jodo
     url: https://docs.jodo.in/
@@ -93,24 +74,23 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
-    AccessTokenResponse:
+    RegisterUserRequest:
       type: object
-      description: The access_token is used in the Jodo login redirect https://[base_url]/consumer/login-redirect?access_token=<access_token>, optionally with jodo_student_id, product_type (flex|pay|cred), callback_url and create_application.
+      required:
+      - name
+      - phone
+      - email
       properties:
-        status:
+        name:
           type: string
-          examples:
-          - success
-        data:
-          type: object
-          properties:
-            access_token:
-              type: string
-              description: Access token used for the Jodo redirect.
-            expires_at:
-              type: string
-              format: date-time
-              description: Expiry time for the token.
+          description: Full name of the user.
+        phone:
+          type: string
+          description: 10-digit phone number.
+        email:
+          type: string
+          format: email
+          description: Email address.
     Error:
       type: object
       description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
@@ -138,34 +118,27 @@ components:
             registration_id:
               type: string
               description: Unique registration ID generated for the user.
-    RegisterUserRequest:
+    AccessTokenResponse:
       type: object
-      required:
-      - name
-      - phone
-      - email
+      description: The access_token is used in the Jodo login redirect https://[base_url]/consumer/login-redirect?access_token=<access_token>, optionally with jodo_student_id, product_type (flex|pay|cred), callback_url and create_application.
       properties:
-        name:
+        status:
           type: string
-          description: Full name of the user.
-        phone:
-          type: string
-          description: 10-digit phone number.
-        email:
-          type: string
-          format: email
-          description: Email address.
-  parameters:
-    RegistrationId:
-      name: registration_id
-      in: path
-      required: true
-      description: Unique registration ID for the user, returned by Register User.
-      schema:
-        type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+              description: Access token used for the Jodo redirect.
+            expires_at:
+              type: string
+              format: date-time
+              description: Expiry time for the token.
   responses:
-    Unauthorized:
-      description: Unauthorized. Authentication failed or credentials are invalid.
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
       content:
         application/json:
           schema:
@@ -176,12 +149,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  parameters:
+    RegistrationId:
+      name: registration_id
+      in: path
+      required: true
+      description: Unique registration ID for the user, returned by Register User.
+      schema:
+        type: string
   securitySchemes:
     basicAuth:
       type: http

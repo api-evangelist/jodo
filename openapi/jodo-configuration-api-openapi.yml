@@ -5,26 +5,7 @@ info:
   summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
   description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
 
-    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
-
-    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
-
-    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
-
-
-    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
-
-    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
-
-    documented operation per reference page. Every path, method, path/query parameter, request-body
-
-    field, response field and error code below is transcribed from the corresponding docs page named
-
-    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
-
-    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
-
-    '
+    connect to Jodo fee collection.'
   contact:
     name: Jodo
     url: https://docs.jodo.in/
@@ -143,9 +124,7 @@ paths:
 
         subscribed to only one URL; calling this API again for the same event_code updates the
 
-        existing subscription. After creation only secret_key, header_key and header_value can be updated.
-
-        '
+        existing subscription. After creation only secret_key, header_key and header_value can be updated.'
       tags:
       - Configuration
       x-source: https://docs.jodo.in/configuration/api/add-webhook/
@@ -202,22 +181,48 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 components:
-  parameters:
-    CollectorCode:
-      name: collector_code
-      in: query
-      required: false
-      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
-      schema:
-        type: string
-    WebhookId:
-      name: webhook_id
-      in: path
-      required: true
-      description: Webhook subscription ID.
-      schema:
-        type: string
   schemas:
+    GenericListResponse:
+      type: object
+      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
+    AddWebhookRequest:
+      type: object
+      required:
+      - event_code
+      - url
+      - failure_notification_email
+      properties:
+        collector_code:
+          type: string
+          description: Branch code. Required if the institute has more than one branch.
+        event_code:
+          type: string
+          description: Webhook event code, e.g. cred.loan.final_approved.
+        url:
+          type: string
+          format: uri
+          description: Destination URL where Jodo sends POST requests when the event is triggered.
+        failure_notification_email:
+          type: string
+          description: Comma-separated email list for failure notifications.
+        secret_key:
+          type: string
+          description: Secret key used to generate the X-Jodo-Signature HMAC SHA-256 signature.
+        header_key:
+          type: string
+          description: Custom header key sent with webhook requests.
+        header_value:
+          type: string
+          description: Custom header value sent with webhook requests.
     Error:
       type: object
       description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
@@ -252,35 +257,6 @@ components:
             url:
               type: string
               format: uri
-    AddWebhookRequest:
-      type: object
-      required:
-      - event_code
-      - url
-      - failure_notification_email
-      properties:
-        collector_code:
-          type: string
-          description: Branch code. Required if the institute has more than one branch.
-        event_code:
-          type: string
-          description: Webhook event code, e.g. cred.loan.final_approved.
-        url:
-          type: string
-          format: uri
-          description: Destination URL where Jodo sends POST requests when the event is triggered.
-        failure_notification_email:
-          type: string
-          description: Comma-separated email list for failure notifications.
-        secret_key:
-          type: string
-          description: Secret key used to generate the X-Jodo-Signature HMAC SHA-256 signature.
-        header_key:
-          type: string
-          description: Custom header key sent with webhook requests.
-        header_value:
-          type: string
-          description: Custom header value sent with webhook requests.
     StatusOnlyResponse:
       type: object
       description: Some write APIs return only a status envelope.
@@ -289,27 +265,30 @@ components:
           type: string
           examples:
           - success
-    GenericListResponse:
-      type: object
-      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
+  parameters:
+    WebhookId:
+      name: webhook_id
+      in: path
+      required: true
+      description: Webhook subscription ID.
+      schema:
+        type: string
+    CollectorCode:
+      name: collector_code
+      in: query
+      required: false
+      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
+      schema:
+        type: string
   responses:
-    NotFound:
-      description: HUE00001 — Resource not found.
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
+    NotFound:
+      description: HUE00001 — Resource not found.
       content:
         application/json:
           schema:

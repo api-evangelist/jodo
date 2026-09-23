@@ -5,26 +5,7 @@ info:
   summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
   description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
 
-    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
-
-    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
-
-    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
-
-
-    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
-
-    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
-
-    documented operation per reference page. Every path, method, path/query parameter, request-body
-
-    field, response field and error code below is transcribed from the corresponding docs page named
-
-    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
-
-    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
-
-    '
+    connect to Jodo fee collection.'
   contact:
     name: Jodo
     url: https://docs.jodo.in/
@@ -247,6 +228,116 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    HistoricPayment:
+      type: object
+      required:
+      - amount
+      - paid_at
+      - mode
+      - transaction_id
+      - fee_components
+      properties:
+        amount:
+          type: number
+          description: The payment amount.
+        paid_at:
+          type: string
+          format: date-time
+          description: The date and time of the payment in ISO 8601 format.
+        mode:
+          type: string
+          description: The payment mode, e.g. cash, credit card.
+        transaction_id:
+          type: string
+          description: The unique transaction ID for the student.
+        settlement_utr:
+          type: string
+          description: The settlement UTR (Unique Transaction Reference)
+          if applicable.: null
+        notes:
+          type: string
+          description: Additional notes or comments regarding the payment.
+        fee_components:
+          type: array
+          description: Fee components included in this payment.
+          items:
+            $ref: '#/components/schemas/PaymentAllocation'
+    FeeComponent:
+      type: object
+      required:
+      - component_type
+      - fee_amount
+      properties:
+        component_type:
+          type: string
+          description: The type of fee component, e.g. TUITION_FEE, TRANSPORT_FEE.
+        fee_amount:
+          type: number
+          description: The fee amount for the component.
+        discounts:
+          type: array
+          description: Discounts applied to this component.
+          items:
+            $ref: '#/components/schemas/Discount'
+    ProductListResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              product_type:
+                type: string
+                enum:
+                - flex
+                - pay
+                - cred
+              status:
+                type: string
+                examples:
+                - pending
+    PaymentListResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
+    RegisterStudentRequest:
+      type: object
+      required:
+      - student
+      properties:
+        student:
+          $ref: '#/components/schemas/Student'
+        fee_components:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeComponent'
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoricPayment'
+    UpdateFeeRequest:
+      type: object
+      required:
+      - fee_components
+      properties:
+        fee_components:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeComponent'
     Student:
       type: object
       required:
@@ -299,49 +390,6 @@ components:
           type: string
           format: email
           description: The primary contact email.
-    RegisterStudentRequest:
-      type: object
-      required:
-      - student
-      properties:
-        student:
-          $ref: '#/components/schemas/Student'
-        fee_components:
-          type: array
-          items:
-            $ref: '#/components/schemas/FeeComponent'
-        payments:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoricPayment'
-    PaymentListResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
-    FeeComponent:
-      type: object
-      required:
-      - component_type
-      - fee_amount
-      properties:
-        component_type:
-          type: string
-          description: The type of fee component, e.g. TUITION_FEE, TRANSPORT_FEE.
-        fee_amount:
-          type: number
-          description: The fee amount for the component.
-        discounts:
-          type: array
-          description: Discounts applied to this component.
-          items:
-            $ref: '#/components/schemas/Discount'
     Discount:
       type: object
       required:
@@ -354,6 +402,72 @@ components:
         value:
           type: integer
           description: Discount amount in INR.
+    PaymentAllocation:
+      type: object
+      required:
+      - component_type
+      - amount
+      properties:
+        component_type:
+          type: string
+          description: Fee component for which payment is made.
+        amount:
+          type: number
+          description: Amount paid for this fee component.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+    AddPaymentRequest:
+      type: object
+      required:
+      - amount
+      - paid_at
+      - fee_components
+      properties:
+        amount:
+          type: number
+          description: Total amount paid.
+        paid_at:
+          type: string
+          format: date-time
+          description: Paid date and time in ISO 8601 format.
+        mode:
+          type: string
+          description: Mode of payment. Defaults to others if not provided.
+        transaction_id:
+          type: string
+          description: Unique transaction ID from your system. Reused as the path key when cancelling the payment.
+        settlement_utr:
+          type: string
+          description: Settlement UTR
+          if already available.: null
+        notes:
+          type: string
+          description: Payment notes.
+        fee_components:
+          type: array
+          description: Fee component level payment allocation.
+          items:
+            $ref: '#/components/schemas/PaymentAllocation'
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
     StudentResponse:
       type: object
       properties:
@@ -405,147 +519,7 @@ components:
                 total_discount:
                   type: number
                   description: Total discount for the student.
-    AddPaymentRequest:
-      type: object
-      required:
-      - amount
-      - paid_at
-      - fee_components
-      properties:
-        amount:
-          type: number
-          description: Total amount paid.
-        paid_at:
-          type: string
-          format: date-time
-          description: Paid date and time in ISO 8601 format.
-        mode:
-          type: string
-          description: Mode of payment. Defaults to others if not provided.
-        transaction_id:
-          type: string
-          description: Unique transaction ID from your system. Reused as the path key when cancelling the payment.
-        settlement_utr:
-          type: string
-          description: Settlement UTR
-          if already available.: null
-        notes:
-          type: string
-          description: Payment notes.
-        fee_components:
-          type: array
-          description: Fee component level payment allocation.
-          items:
-            $ref: '#/components/schemas/PaymentAllocation'
-    Error:
-      type: object
-      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
-      properties:
-        status:
-          type: string
-          examples:
-          - error
-        code:
-          type: string
-          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
-        message:
-          type: string
-          description: User-friendly explanation of the error.
-    PaymentAllocation:
-      type: object
-      required:
-      - component_type
-      - amount
-      properties:
-        component_type:
-          type: string
-          description: Fee component for which payment is made.
-        amount:
-          type: number
-          description: Amount paid for this fee component.
-    HistoricPayment:
-      type: object
-      required:
-      - amount
-      - paid_at
-      - mode
-      - transaction_id
-      - fee_components
-      properties:
-        amount:
-          type: number
-          description: The payment amount.
-        paid_at:
-          type: string
-          format: date-time
-          description: The date and time of the payment in ISO 8601 format.
-        mode:
-          type: string
-          description: The payment mode, e.g. cash, credit card.
-        transaction_id:
-          type: string
-          description: The unique transaction ID for the student.
-        settlement_utr:
-          type: string
-          description: The settlement UTR (Unique Transaction Reference)
-          if applicable.: null
-        notes:
-          type: string
-          description: Additional notes or comments regarding the payment.
-        fee_components:
-          type: array
-          description: Fee components included in this payment.
-          items:
-            $ref: '#/components/schemas/PaymentAllocation'
-    UpdateFeeRequest:
-      type: object
-      required:
-      - fee_components
-      properties:
-        fee_components:
-          type: array
-          items:
-            $ref: '#/components/schemas/FeeComponent'
-    ProductListResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              product_type:
-                type: string
-                enum:
-                - flex
-                - pay
-                - cred
-              status:
-                type: string
-                examples:
-                - pending
-    StatusOnlyResponse:
-      type: object
-      description: Some write APIs return only a status envelope.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
   parameters:
-    RegistrationId:
-      name: registration_id
-      in: path
-      required: true
-      description: Unique registration ID for the user, returned by Register User.
-      schema:
-        type: string
     JodoStudentId:
       name: jodo_student_id
       in: path
@@ -553,15 +527,28 @@ components:
       description: Jodo student ID.
       schema:
         type: string
+    RegistrationId:
+      name: registration_id
+      in: path
+      required: true
+      description: Unique registration ID for the user, returned by Register User.
+      schema:
+        type: string
   responses:
-    Unauthorized:
-      description: Unauthorized. Authentication failed or credentials are invalid.
+    NotFound:
+      description: HUE00001 — Resource not found.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
     StudentNotFound:
       description: MAE00001 — Student not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
       content:
         application/json:
           schema:
@@ -574,12 +561,6 @@ components:
             $ref: '#/components/schemas/Error'
     BadRequestMAE:
       description: MAE00000 — Bad request error.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
       content:
         application/json:
           schema:

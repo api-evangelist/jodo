@@ -5,26 +5,7 @@ info:
   summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
   description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
 
-    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
-
-    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
-
-    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
-
-
-    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
-
-    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
-
-    documented operation per reference page. Every path, method, path/query parameter, request-body
-
-    field, response field and error code below is transcribed from the corresponding docs page named
-
-    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
-
-    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
-
-    '
+    connect to Jodo fee collection.'
   contact:
     name: Jodo
     url: https://docs.jodo.in/
@@ -153,17 +134,78 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
-    Note:
+    OrderLineItem:
+      type: object
+      required:
+      - component_type
+      - amount
+      properties:
+        component_type:
+          type: string
+          description: Payment detail type, such as Event Fee or Payable Amount.
+        amount:
+          type: number
+          description: Amount to be collected for the line item.
+        settlement_utr:
+          type: string
+          description: Settlement UTR
+          if settled.: null
+        settled_at:
+          type: string
+          format: date-time
+          description: Settlement time
+          if settled.: null
+    CreatePayOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          callback_url:
+            type: string
+            format: uri
+            description: URL used to redirect the payer after checkout.
+    OrderCreatedResponse:
       type: object
       properties:
-        key:
+        status:
           type: string
           examples:
-          - erp_reference_id
-        value:
+          - success
+        data:
+          type: object
+          properties:
+            order_id:
+              type: string
+              description: Unique Jodo Pay Order identifier.
+            redirect_url:
+              type: string
+              format: uri
+              description: Hosted Jodo checkout URL for the payer.
+    PaymentLinkResponse:
+      type: object
+      properties:
+        status:
           type: string
           examples:
-          - REF123
+          - success
+        data:
+          allOf:
+          - $ref: '#/components/schemas/Order'
+          - type: object
+            properties:
+              expires_at:
+                type: string
+                format: date-time
+                description: Payment link expiry date and time.
+    OrderResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          $ref: '#/components/schemas/Order'
     Error:
       type: object
       description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
@@ -178,17 +220,64 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
-    MessageResponse:
+    CreatePaymentLinkRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          expires_at:
+            type: string
+            format: date-time
+            description: Optional expiry date and time in ISO 8601 format.
+    PayOrderBase:
       type: object
+      required:
+      - name
+      - phone
+      - email
+      - details
       properties:
-        status:
+        name:
           type: string
-          examples:
-          - success
-        message:
+          description: Name of the payer.
+        phone:
           type: string
-          examples:
-          - Payment link cancelled successfully!
+          description: Phone number of the payer.
+        email:
+          type: string
+          format: email
+          description: Email address of the payer.
+        student_name:
+          type: string
+          description: Student name
+          if relevant. Does not require an existing Jodo student record.: null
+        grade:
+          type: string
+          description: Grade identifier shared between Jodo and the ERP provider.
+        date_of_birth:
+          type: string
+        identifier:
+          type: string
+          description: Student identifier assigned by the institute
+          if available.: null
+        new_admission:
+          type: boolean
+        custom_identifier:
+          type: string
+        academic_year_start:
+          type: integer
+        academic_year_end:
+          type: integer
+        details:
+          type: array
+          description: Payment line items.
+          items:
+            $ref: '#/components/schemas/OrderLineItem'
+        notes:
+          type: array
+          description: Key-value metadata, for example ERP reference IDs.
+          items:
+            $ref: '#/components/schemas/Note'
     Order:
       type: object
       properties:
@@ -239,139 +328,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Note'
-    PayOrderBase:
+    Note:
       type: object
-      required:
-      - name
-      - phone
-      - email
-      - details
       properties:
-        name:
+        key:
           type: string
-          description: Name of the payer.
-        phone:
+          examples:
+          - erp_reference_id
+        value:
           type: string
-          description: Phone number of the payer.
-        email:
-          type: string
-          format: email
-          description: Email address of the payer.
-        student_name:
-          type: string
-          description: Student name
-          if relevant. Does not require an existing Jodo student record.: null
-        grade:
-          type: string
-          description: Grade identifier shared between Jodo and the ERP provider.
-        date_of_birth:
-          type: string
-        identifier:
-          type: string
-          description: Student identifier assigned by the institute
-          if available.: null
-        new_admission:
-          type: boolean
-        custom_identifier:
-          type: string
-        academic_year_start:
-          type: integer
-        academic_year_end:
-          type: integer
-        details:
-          type: array
-          description: Payment line items.
-          items:
-            $ref: '#/components/schemas/OrderLineItem'
-        notes:
-          type: array
-          description: Key-value metadata, for example ERP reference IDs.
-          items:
-            $ref: '#/components/schemas/Note'
-    PaymentLinkResponse:
+          examples:
+          - REF123
+    MessageResponse:
       type: object
       properties:
         status:
           type: string
           examples:
           - success
-        data:
-          allOf:
-          - $ref: '#/components/schemas/Order'
-          - type: object
-            properties:
-              expires_at:
-                type: string
-                format: date-time
-                description: Payment link expiry date and time.
-    CreatePaymentLinkRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          expires_at:
-            type: string
-            format: date-time
-            description: Optional expiry date and time in ISO 8601 format.
-    OrderCreatedResponse:
-      type: object
-      properties:
-        status:
+        message:
           type: string
           examples:
-          - success
-        data:
-          type: object
-          properties:
-            order_id:
-              type: string
-              description: Unique Jodo Pay Order identifier.
-            redirect_url:
-              type: string
-              format: uri
-              description: Hosted Jodo checkout URL for the payer.
-    OrderResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          $ref: '#/components/schemas/Order'
-    CreatePayOrderRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          callback_url:
-            type: string
-            format: uri
-            description: URL used to redirect the payer after checkout.
-    OrderLineItem:
-      type: object
-      required:
-      - component_type
-      - amount
-      properties:
-        component_type:
-          type: string
-          description: Payment detail type, such as Event Fee or Payable Amount.
-        amount:
-          type: number
-          description: Amount to be collected for the line item.
-        settlement_utr:
-          type: string
-          description: Settlement UTR
-          if settled.: null
-        settled_at:
-          type: string
-          format: date-time
-          description: Settlement time
-          if settled.: null
+          - Payment link cancelled successfully!
   responses:
-    Unauthorized:
-      description: Unauthorized. Authentication failed or credentials are invalid.
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
       content:
         application/json:
           schema:
@@ -382,8 +363,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
       content:
         application/json:
           schema:

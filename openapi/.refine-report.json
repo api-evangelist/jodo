@@ -1,0 +1,28 @@
+{
+  "provider": "jodo",
+  "sources": [
+    "_original/jodo-integrations-openapi.yml"
+  ],
+  "outputs": [
+    "jodo-configuration-api-openapi.yml",
+    "jodo-flex-api-openapi.yml",
+    "jodo-pay-api-openapi.yml",
+    "jodo-students-api-openapi.yml",
+    "jodo-users-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
+    "jodo-integrations-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
+    "apis.yml register: already-registered"
+  ],
+  "skipped": [
+    "jodo-configuration-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "jodo-flex-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "jodo-pay-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "jodo-students-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "jodo-users-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
+}

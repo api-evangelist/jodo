@@ -5,26 +5,7 @@ info:
   summary: Fee collection, flexible instalment plans and education credit for Indian educational institutes.
   description: 'Jodo''s ERP Integrations API lets an institute''s ERP, finance or student-information system
 
-    connect to Jodo fee collection. It covers user registration and hosted-flow access tokens,
-
-    student master data and fee structures, manual/direct payment reconciliation, Flex instalment
-
-    plans, Pay checkout orders and shareable payment links, and webhook subscription management.
-
-
-    PROVENANCE: Jodo publishes no OpenAPI document. This description was assembled from Jodo''s own
-
-    public API reference at https://docs.jodo.in/ (Astro Starlight, server-rendered HTML), one
-
-    documented operation per reference page. Every path, method, path/query parameter, request-body
-
-    field, response field and error code below is transcribed from the corresponding docs page named
-
-    in the operation''s `x-source` extension. No operation, parameter or field has been invented.
-
-    Field types are the ones the docs state. Where the docs do not state a constraint, none is asserted.
-
-    '
+    connect to Jodo fee collection.'
   contact:
     name: Jodo
     url: https://docs.jodo.in/
@@ -91,6 +72,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  parameters:
+    JodoStudentId:
+      name: jodo_student_id
+      in: path
+      required: true
+      description: Jodo student ID.
+      schema:
+        type: string
   schemas:
     Error:
       type: object
@@ -106,24 +95,6 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
-    StatusOnlyResponse:
-      type: object
-      description: Some write APIs return only a status envelope.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-    FlexScheduleResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          description: Flex payment schedule configured for the student.
     ManageFlexPlanRequest:
       type: object
       required:
@@ -159,23 +130,33 @@ components:
                     is_downpayment:
                       type: boolean
                       description: Set to true when the component is part of a downpayment instalment.
-  parameters:
-    JodoStudentId:
-      name: jodo_student_id
-      in: path
-      required: true
-      description: Jodo student ID.
-      schema:
-        type: string
+    FlexScheduleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          description: Flex payment schedule configured for the student.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
   responses:
-    NotFound:
-      description: HUE00001 — Resource not found.
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
+    NotFound:
+      description: HUE00001 — Resource not found.
       content:
         application/json:
           schema:
