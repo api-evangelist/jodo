@@ -134,69 +134,28 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
-    OrderLineItem:
-      type: object
-      required:
-      - component_type
-      - amount
-      properties:
-        component_type:
-          type: string
-          description: Payment detail type, such as Event Fee or Payable Amount.
-        amount:
-          type: number
-          description: Amount to be collected for the line item.
-        settlement_utr:
-          type: string
-          description: Settlement UTR
-          if settled.: null
-        settled_at:
-          type: string
-          format: date-time
-          description: Settlement time
-          if settled.: null
-    CreatePayOrderRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          callback_url:
-            type: string
-            format: uri
-            description: URL used to redirect the payer after checkout.
-    OrderCreatedResponse:
+    MessageResponse:
       type: object
       properties:
         status:
           type: string
           examples:
           - success
-        data:
-          type: object
-          properties:
-            order_id:
-              type: string
-              description: Unique Jodo Pay Order identifier.
-            redirect_url:
-              type: string
-              format: uri
-              description: Hosted Jodo checkout URL for the payer.
-    PaymentLinkResponse:
-      type: object
-      properties:
-        status:
+        message:
           type: string
           examples:
-          - success
-        data:
-          allOf:
-          - $ref: '#/components/schemas/Order'
-          - type: object
-            properties:
-              expires_at:
-                type: string
-                format: date-time
-                description: Payment link expiry date and time.
+          - Payment link cancelled successfully!
+    Note:
+      type: object
+      properties:
+        key:
+          type: string
+          examples:
+          - erp_reference_id
+        value:
+          type: string
+          examples:
+          - REF123
     OrderResponse:
       type: object
       properties:
@@ -220,15 +179,6 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
-    CreatePaymentLinkRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          expires_at:
-            type: string
-            format: date-time
-            description: Optional expiry date and time in ISO 8601 format.
     PayOrderBase:
       type: object
       required:
@@ -278,6 +228,27 @@ components:
           description: Key-value metadata, for example ERP reference IDs.
           items:
             $ref: '#/components/schemas/Note'
+    OrderLineItem:
+      type: object
+      required:
+      - component_type
+      - amount
+      properties:
+        component_type:
+          type: string
+          description: Payment detail type, such as Event Fee or Payable Amount.
+        amount:
+          type: number
+          description: Amount to be collected for the line item.
+        settlement_utr:
+          type: string
+          description: Settlement UTR
+          if settled.: null
+        settled_at:
+          type: string
+          format: date-time
+          description: Settlement time
+          if settled.: null
     Order:
       type: object
       properties:
@@ -328,28 +299,57 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Note'
-    Note:
-      type: object
-      properties:
-        key:
-          type: string
-          examples:
-          - erp_reference_id
-        value:
-          type: string
-          examples:
-          - REF123
-    MessageResponse:
+    PaymentLinkResponse:
       type: object
       properties:
         status:
           type: string
           examples:
           - success
-        message:
+        data:
+          allOf:
+          - $ref: '#/components/schemas/Order'
+          - type: object
+            properties:
+              expires_at:
+                type: string
+                format: date-time
+                description: Payment link expiry date and time.
+    CreatePayOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          callback_url:
+            type: string
+            format: uri
+            description: URL used to redirect the payer after checkout.
+    CreatePaymentLinkRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          expires_at:
+            type: string
+            format: date-time
+            description: Optional expiry date and time in ISO 8601 format.
+    OrderCreatedResponse:
+      type: object
+      properties:
+        status:
           type: string
           examples:
-          - Payment link cancelled successfully!
+          - success
+        data:
+          type: object
+          properties:
+            order_id:
+              type: string
+              description: Unique Jodo Pay Order identifier.
+            redirect_url:
+              type: string
+              format: uri
+              description: Hosted Jodo checkout URL for the payer.
   responses:
     BadRequest:
       description: HUE00000 — Bad request. The request contains invalid or missing data.

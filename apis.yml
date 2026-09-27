@@ -58,7 +58,7 @@ tags:
 - India
 - Webhook
 - ERP Integration
-- Financial-Services
+- Financial Services
 tags_raw:
 - Company
 - Payments
@@ -70,6 +70,7 @@ tags_raw:
 - Webhooks
 - ERP Integration
 - Financial Services
+- Financial-Services
 apis:
 - name: Jodo Webhooks
   description: >-

@@ -181,19 +181,22 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 components:
+  parameters:
+    WebhookId:
+      name: webhook_id
+      in: path
+      required: true
+      description: Webhook subscription ID.
+      schema:
+        type: string
+    CollectorCode:
+      name: collector_code
+      in: query
+      required: false
+      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
+      schema:
+        type: string
   schemas:
-    GenericListResponse:
-      type: object
-      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
     AddWebhookRequest:
       type: object
       required:
@@ -237,6 +240,18 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
+    GenericListResponse:
+      type: object
+      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
     WebhookResponse:
       type: object
       properties:
@@ -265,21 +280,6 @@ components:
           type: string
           examples:
           - success
-  parameters:
-    WebhookId:
-      name: webhook_id
-      in: path
-      required: true
-      description: Webhook subscription ID.
-      schema:
-        type: string
-    CollectorCode:
-      name: collector_code
-      in: query
-      required: false
-      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
-      schema:
-        type: string
   responses:
     BadRequest:
       description: HUE00000 — Bad request. The request contains invalid or missing data.
