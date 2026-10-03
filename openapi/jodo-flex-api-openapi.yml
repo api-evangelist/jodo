@@ -72,6 +72,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  parameters:
+    JodoStudentId:
+      name: jodo_student_id
+      in: path
+      required: true
+      description: Jodo student ID.
+      schema:
+        type: string
   responses:
     BadRequest:
       description: HUE00000 — Bad request. The request contains invalid or missing data.
@@ -86,20 +94,6 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
-    Error:
-      type: object
-      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
-      properties:
-        status:
-          type: string
-          examples:
-          - error
-        code:
-          type: string
-          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
-        message:
-          type: string
-          description: User-friendly explanation of the error.
     FlexScheduleResponse:
       type: object
       properties:
@@ -110,6 +104,14 @@ components:
         data:
           type: object
           description: Flex payment schedule configured for the student.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
     ManageFlexPlanRequest:
       type: object
       required:
@@ -145,22 +147,20 @@ components:
                     is_downpayment:
                       type: boolean
                       description: Set to true when the component is part of a downpayment instalment.
-    StatusOnlyResponse:
+    Error:
       type: object
-      description: Some write APIs return only a status envelope.
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
       properties:
         status:
           type: string
           examples:
-          - success
-  parameters:
-    JodoStudentId:
-      name: jodo_student_id
-      in: path
-      required: true
-      description: Jodo student ID.
-      schema:
-        type: string
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
   securitySchemes:
     basicAuth:
       type: http
