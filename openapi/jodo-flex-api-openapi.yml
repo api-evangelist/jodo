@@ -72,46 +72,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  parameters:
-    JodoStudentId:
-      name: jodo_student_id
-      in: path
-      required: true
-      description: Jodo student ID.
-      schema:
-        type: string
-  responses:
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
-    FlexScheduleResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          description: Flex payment schedule configured for the student.
-    StatusOnlyResponse:
-      type: object
-      description: Some write APIs return only a status envelope.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
     ManageFlexPlanRequest:
       type: object
       required:
@@ -147,6 +108,14 @@ components:
                     is_downpayment:
                       type: boolean
                       description: Set to true when the component is part of a downpayment instalment.
+    StatusOnlyResponse:
+      type: object
+      description: Some write APIs return only a status envelope.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
     Error:
       type: object
       description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
@@ -161,6 +130,37 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
+    FlexScheduleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          description: Flex payment schedule configured for the student.
+  responses:
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    JodoStudentId:
+      name: jodo_student_id
+      in: path
+      required: true
+      description: Jodo student ID.
+      schema:
+        type: string
   securitySchemes:
     basicAuth:
       type: http

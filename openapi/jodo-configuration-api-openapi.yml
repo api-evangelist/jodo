@@ -181,26 +181,19 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 components:
-  responses:
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Unauthorized. Authentication failed or credentials are invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   schemas:
+    GenericListResponse:
+      type: object
+      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
     AddWebhookRequest:
       type: object
       required:
@@ -250,18 +243,6 @@ components:
             url:
               type: string
               format: uri
-    GenericListResponse:
-      type: object
-      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
     StatusOnlyResponse:
       type: object
       description: Some write APIs return only a status envelope.
@@ -284,6 +265,25 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
+  responses:
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   parameters:
     WebhookId:
       name: webhook_id

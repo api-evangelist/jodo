@@ -73,6 +73,77 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  parameters:
+    RegistrationId:
+      name: registration_id
+      in: path
+      required: true
+      description: Unique registration ID for the user, returned by Register User.
+      schema:
+        type: string
+  schemas:
+    RegisterUserResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            registration_id:
+              type: string
+              description: Unique registration ID generated for the user.
+    RegisterUserRequest:
+      type: object
+      required:
+      - name
+      - phone
+      - email
+      properties:
+        name:
+          type: string
+          description: Full name of the user.
+        phone:
+          type: string
+          description: 10-digit phone number.
+        email:
+          type: string
+          format: email
+          description: Email address.
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    AccessTokenResponse:
+      type: object
+      description: The access_token is used in the Jodo login redirect https://[base_url]/consumer/login-redirect?access_token=<access_token>, optionally with jodo_student_id, product_type (flex|pay|cred), callback_url and create_application.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+              description: Access token used for the Jodo redirect.
+            expires_at:
+              type: string
+              format: date-time
+              description: Expiry time for the token.
   responses:
     BadRequest:
       description: HUE00000 — Bad request. The request contains invalid or missing data.
@@ -92,77 +163,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-  parameters:
-    RegistrationId:
-      name: registration_id
-      in: path
-      required: true
-      description: Unique registration ID for the user, returned by Register User.
-      schema:
-        type: string
-  schemas:
-    RegisterUserRequest:
-      type: object
-      required:
-      - name
-      - phone
-      - email
-      properties:
-        name:
-          type: string
-          description: Full name of the user.
-        phone:
-          type: string
-          description: 10-digit phone number.
-        email:
-          type: string
-          format: email
-          description: Email address.
-    AccessTokenResponse:
-      type: object
-      description: The access_token is used in the Jodo login redirect https://[base_url]/consumer/login-redirect?access_token=<access_token>, optionally with jodo_student_id, product_type (flex|pay|cred), callback_url and create_application.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          properties:
-            access_token:
-              type: string
-              description: Access token used for the Jodo redirect.
-            expires_at:
-              type: string
-              format: date-time
-              description: Expiry time for the token.
-    RegisterUserResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          properties:
-            registration_id:
-              type: string
-              description: Unique registration ID generated for the user.
-    Error:
-      type: object
-      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
-      properties:
-        status:
-          type: string
-          examples:
-          - error
-        code:
-          type: string
-          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
-        message:
-          type: string
-          description: User-friendly explanation of the error.
   securitySchemes:
     basicAuth:
       type: http
