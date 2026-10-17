@@ -72,6 +72,19 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  responses:
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     ManageFlexPlanRequest:
       type: object
@@ -108,6 +121,16 @@ components:
                     is_downpayment:
                       type: boolean
                       description: Set to true when the component is part of a downpayment instalment.
+    FlexScheduleResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          description: Flex payment schedule configured for the student.
     StatusOnlyResponse:
       type: object
       description: Some write APIs return only a status envelope.
@@ -130,29 +153,6 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
-    FlexScheduleResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          description: Flex payment schedule configured for the student.
-  responses:
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
   parameters:
     JodoStudentId:
       name: jodo_student_id

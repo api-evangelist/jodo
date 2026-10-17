@@ -133,75 +133,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  parameters:
-    OrderId:
-      name: order_id
-      in: path
-      required: true
-      description: Jodo Pay Order identifier returned by Create Pay Order or Create Payment Link.
-      schema:
-        type: string
   schemas:
-    Note:
-      type: object
-      properties:
-        key:
-          type: string
-          examples:
-          - erp_reference_id
-        value:
-          type: string
-          examples:
-          - REF123
-    PayOrderBase:
-      type: object
-      required:
-      - name
-      - phone
-      - email
-      - details
-      properties:
-        name:
-          type: string
-          description: Name of the payer.
-        phone:
-          type: string
-          description: Phone number of the payer.
-        email:
-          type: string
-          format: email
-          description: Email address of the payer.
-        student_name:
-          type: string
-          description: Student name
-          if relevant. Does not require an existing Jodo student record.: null
-        grade:
-          type: string
-          description: Grade identifier shared between Jodo and the ERP provider.
-        date_of_birth:
-          type: string
-        identifier:
-          type: string
-          description: Student identifier assigned by the institute
-          if available.: null
-        new_admission:
-          type: boolean
-        custom_identifier:
-          type: string
-        academic_year_start:
-          type: integer
-        academic_year_end:
-          type: integer
-        details:
-          type: array
-          description: Payment line items.
-          items:
-            $ref: '#/components/schemas/OrderLineItem'
-        notes:
-          type: array
-          description: Key-value metadata, for example ERP reference IDs.
-          items:
-            $ref: '#/components/schemas/Note'
     MessageResponse:
       type: object
       properties:
@@ -213,71 +145,6 @@ components:
           type: string
           examples:
           - Payment link cancelled successfully!
-    PaymentLinkResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          allOf:
-          - $ref: '#/components/schemas/Order'
-          - type: object
-            properties:
-              expires_at:
-                type: string
-                format: date-time
-                description: Payment link expiry date and time.
-    OrderCreatedResponse:
-      type: object
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: object
-          properties:
-            order_id:
-              type: string
-              description: Unique Jodo Pay Order identifier.
-            redirect_url:
-              type: string
-              format: uri
-              description: Hosted Jodo checkout URL for the payer.
-    CreatePayOrderRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          callback_url:
-            type: string
-            format: uri
-            description: URL used to redirect the payer after checkout.
-    CreatePaymentLinkRequest:
-      allOf:
-      - $ref: '#/components/schemas/PayOrderBase'
-      - type: object
-        properties:
-          expires_at:
-            type: string
-            format: date-time
-            description: Optional expiry date and time in ISO 8601 format.
-    Error:
-      type: object
-      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
-      properties:
-        status:
-          type: string
-          examples:
-          - error
-        code:
-          type: string
-          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
-        message:
-          type: string
-          description: User-friendly explanation of the error.
     Order:
       type: object
       properties:
@@ -328,15 +195,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Note'
-    OrderResponse:
+    Note:
       type: object
       properties:
-        status:
+        key:
           type: string
           examples:
-          - success
-        data:
-          $ref: '#/components/schemas/Order'
+          - erp_reference_id
+        value:
+          type: string
+          examples:
+          - REF123
     OrderLineItem:
       type: object
       required:
@@ -358,9 +227,132 @@ components:
           format: date-time
           description: Settlement time
           if settled.: null
+    CreatePaymentLinkRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          expires_at:
+            type: string
+            format: date-time
+            description: Optional expiry date and time in ISO 8601 format.
+    Error:
+      type: object
+      description: Jodo returns an HTTP status code with a user-facing message and a machine-readable error code.
+      properties:
+        status:
+          type: string
+          examples:
+          - error
+        code:
+          type: string
+          description: Machine-readable Jodo error code, e.g. HUE00000, HUE00001, MAE00000, MAE00001.
+        message:
+          type: string
+          description: User-friendly explanation of the error.
+    CreatePayOrderRequest:
+      allOf:
+      - $ref: '#/components/schemas/PayOrderBase'
+      - type: object
+        properties:
+          callback_url:
+            type: string
+            format: uri
+            description: URL used to redirect the payer after checkout.
+    PayOrderBase:
+      type: object
+      required:
+      - name
+      - phone
+      - email
+      - details
+      properties:
+        name:
+          type: string
+          description: Name of the payer.
+        phone:
+          type: string
+          description: Phone number of the payer.
+        email:
+          type: string
+          format: email
+          description: Email address of the payer.
+        student_name:
+          type: string
+          description: Student name
+          if relevant. Does not require an existing Jodo student record.: null
+        grade:
+          type: string
+          description: Grade identifier shared between Jodo and the ERP provider.
+        date_of_birth:
+          type: string
+        identifier:
+          type: string
+          description: Student identifier assigned by the institute
+          if available.: null
+        new_admission:
+          type: boolean
+        custom_identifier:
+          type: string
+        academic_year_start:
+          type: integer
+        academic_year_end:
+          type: integer
+        details:
+          type: array
+          description: Payment line items.
+          items:
+            $ref: '#/components/schemas/OrderLineItem'
+        notes:
+          type: array
+          description: Key-value metadata, for example ERP reference IDs.
+          items:
+            $ref: '#/components/schemas/Note'
+    OrderResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          $ref: '#/components/schemas/Order'
+    PaymentLinkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          allOf:
+          - $ref: '#/components/schemas/Order'
+          - type: object
+            properties:
+              expires_at:
+                type: string
+                format: date-time
+                description: Payment link expiry date and time.
+    OrderCreatedResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: object
+          properties:
+            order_id:
+              type: string
+              description: Unique Jodo Pay Order identifier.
+            redirect_url:
+              type: string
+              format: uri
+              description: Hosted Jodo checkout URL for the payer.
   responses:
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
+    NotFound:
+      description: HUE00001 — Resource not found.
       content:
         application/json:
           schema:
@@ -371,12 +363,20 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+  parameters:
+    OrderId:
+      name: order_id
+      in: path
+      required: true
+      description: Jodo Pay Order identifier returned by Create Pay Order or Create Payment Link.
+      schema:
+        type: string
   securitySchemes:
     basicAuth:
       type: http

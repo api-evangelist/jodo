@@ -181,48 +181,41 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 components:
+  responses:
+    NotFound:
+      description: HUE00001 — Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized. Authentication failed or credentials are invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: HUE00000 — Bad request. The request contains invalid or missing data.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  parameters:
+    CollectorCode:
+      name: collector_code
+      in: query
+      required: false
+      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
+      schema:
+        type: string
+    WebhookId:
+      name: webhook_id
+      in: path
+      required: true
+      description: Webhook subscription ID.
+      schema:
+        type: string
   schemas:
-    GenericListResponse:
-      type: object
-      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
-      properties:
-        status:
-          type: string
-          examples:
-          - success
-        data:
-          type: array
-          items:
-            type: object
-    AddWebhookRequest:
-      type: object
-      required:
-      - event_code
-      - url
-      - failure_notification_email
-      properties:
-        collector_code:
-          type: string
-          description: Branch code. Required if the institute has more than one branch.
-        event_code:
-          type: string
-          description: Webhook event code, e.g. cred.loan.final_approved.
-        url:
-          type: string
-          format: uri
-          description: Destination URL where Jodo sends POST requests when the event is triggered.
-        failure_notification_email:
-          type: string
-          description: Comma-separated email list for failure notifications.
-        secret_key:
-          type: string
-          description: Secret key used to generate the X-Jodo-Signature HMAC SHA-256 signature.
-        header_key:
-          type: string
-          description: Custom header key sent with webhook requests.
-        header_value:
-          type: string
-          description: Custom header value sent with webhook requests.
     WebhookResponse:
       type: object
       properties:
@@ -265,40 +258,47 @@ components:
         message:
           type: string
           description: User-friendly explanation of the error.
-  responses:
-    BadRequest:
-      description: HUE00000 — Bad request. The request contains invalid or missing data.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    Unauthorized:
-      description: Unauthorized. Authentication failed or credentials are invalid.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-    NotFound:
-      description: HUE00001 — Resource not found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-  parameters:
-    WebhookId:
-      name: webhook_id
-      in: path
-      required: true
-      description: Webhook subscription ID.
-      schema:
-        type: string
-    CollectorCode:
-      name: collector_code
-      in: query
-      required: false
-      description: Branch code. Required when the institute is part of a group or has branch-specific configuration.
-      schema:
-        type: string
+    GenericListResponse:
+      type: object
+      description: Configuration list envelope. The docs do not enumerate the item shape for every configuration list.
+      properties:
+        status:
+          type: string
+          examples:
+          - success
+        data:
+          type: array
+          items:
+            type: object
+    AddWebhookRequest:
+      type: object
+      required:
+      - event_code
+      - url
+      - failure_notification_email
+      properties:
+        collector_code:
+          type: string
+          description: Branch code. Required if the institute has more than one branch.
+        event_code:
+          type: string
+          description: Webhook event code, e.g. cred.loan.final_approved.
+        url:
+          type: string
+          format: uri
+          description: Destination URL where Jodo sends POST requests when the event is triggered.
+        failure_notification_email:
+          type: string
+          description: Comma-separated email list for failure notifications.
+        secret_key:
+          type: string
+          description: Secret key used to generate the X-Jodo-Signature HMAC SHA-256 signature.
+        header_key:
+          type: string
+          description: Custom header key sent with webhook requests.
+        header_value:
+          type: string
+          description: Custom header value sent with webhook requests.
   securitySchemes:
     basicAuth:
       type: http
