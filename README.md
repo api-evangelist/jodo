@@ -64,5 +64,154 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Jodo is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
-- https://www.nasdaqprivatemarket.com/
+Jodo is a Bengaluru-based fintech that automates fee collection for Indian educational institutes — schools, colleges, universities, coaching centres and skilling institutes. Founded in 2020 by Atulya Bhat, Raghav Nagarajan and Koustav Dey, the company says it serves 5,000+ institutes across 90+ cities and has processed over INR 30,000 crore in fees for 25 lakh+ students. Jodo ships three products on one platform: Flex (structured fees paid in instalments through an auto-debit mandate), Pay (student-linked collections, hosted checkout orders and shareable payment links) and Cred (education loans originated with NBFC lending partners). Its public ERP Integrations API lets an institute's ERP, finance or student-information system register users and students, sync fee structures and discounts, reconcile manual payments, configure instalment schedules, create checkout orders and payment links, and manage webhook subscriptions. Jodo publishes a substantial developer reference at docs.jodo.in covering 25 REST operations and 36 webhook events, with documented UAT and production environments, Basic Auth, an error code registry, a retry and idempotency policy, HMAC SHA-256 webhook signatures and published source IP ranges — but no machine-readable OpenAPI or AsyncAPI document, and no public pricing.
+
+**Areas:** Company · Payments · Education · Fintech · Fee Collection · Lending · India · Webhook · ERP Integration · Financial Services
+
+## Jodo on APIs.io
+
+Everything profiled for Jodo is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/jodo/](https://apis.io/providers/jodo/)** — or go straight to one of the APIs or properties below.
+
+### APIs (6)
+
+- [Jodo Webhooks](https://apis.io/apis/jodo/jodo-webhooks/) — Event delivery surface for the Jodo platform. Jodo POSTs 36 documented events across student master data, manual payments, Flex…
+- [Jodo Configuration API](https://apis.io/apis/jodo/jodo-configuration-api/) — Institute reference data (branches, grades, fee components, discounts) and webhook subscriptions.
+- [Jodo Flex API](https://apis.io/apis/jodo/jodo-flex-api/) — Flexible instalment plans backed by an auto-debit mandate.
+- [Jodo Pay API](https://apis.io/apis/jodo/jodo-pay-api/) — Checkout orders and shareable hosted payment links.
+- [Jodo Students API](https://apis.io/apis/jodo/jodo-students-api/) — Student master data, fee structures and manual payment reconciliation.
+- [Jodo Users API](https://apis.io/apis/jodo/jodo-users-api/) — Register ERP/institute users and mint short-lived tokens for Jodo-hosted flows.
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Jodo Webhooks](https://apis.io/asyncapis/jodo/jodo-webhooks-asyncapi/)
+
+#### Event channels (36)
+
+Individual events and webhooks the provider emits.
+
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-10/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-11/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-12/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-13/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-14/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-15/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-16/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-17/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-18/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-19/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-2/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-20/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-21/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-22/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-23/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-24/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-25/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-26/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-27/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-28/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-29/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-3/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-30/)
+- [{subscriberWebhookUrl}](https://apis.io/channels/jodo/jodo-webhooks-subscriberwebhookurl-31/)
+- …and 11 more published on APIs.io
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Jodo Integrations Overlay](https://apis.io/overlays/jodo/jodo-integrations-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Jodo Authentication](https://apis.io/security/jodo/jodo-authentication/)
+- [Jodo Domain Security](https://apis.io/security/jodo/jodo-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Jodo Plans Pricing](https://apis.io/plans/jodo/jodo-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Jodo Rate Limits](https://apis.io/rate-limits/jodo/jodo-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.jodo.in/)
+- [Documentation](https://docs.jodo.in/)
+- [Getting started](https://docs.jodo.in/getting-started/introduction/)
+- [API reference](https://docs.jodo.in/getting-started/api-structure/)
+- [Support](https://www.jodo.in/contact-us/)
+- [Blog](https://www.jodo.in/blog/)
+- [Trust centre](https://compliance.jodo.in/)
+- [Terms of service](https://www.jodo.in/terms-and-conditions/)
+- [Privacy policy](https://www.jodo.in/privacy-policy/)
+- [GitHub](https://github.com/jodohq)
+- [Status](https://status.jodo.in/)
+
+## API Evangelist rating
+
+**Kin Score 38.5** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 24.7 |
+| Contract governance | 4.5 |
+| Operational transparency | 34.2 |
+| Developer ergonomics | 66.1 |
+| Access clarity | 35.5 |
+
+**Agent readiness 24.6** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 26.8** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/jodo/](https://apis.io/providers/jodo/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Jodo: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/jodo/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
